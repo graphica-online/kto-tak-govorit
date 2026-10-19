@@ -38,6 +38,8 @@ export default function HomePage() {
   const {
     toggleCheatsheet, closeCheatsheet,
     toggleSettings, closeSettings,
+    shuffleActive, toggleShuffle,
+    autoplayActive, toggleAutoplay,
   } = useOutletContext<OutletCtx>()
   const settings = useSettings()
   const stageRef = useRef<AnimalStageHandle>(null)
@@ -60,7 +62,7 @@ export default function HomePage() {
     return shuffleArray(baseFiltered)
     // shuffleSeed используется чтобы пересчитать при нажатии «Случайно» ещё раз
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseFiltered, shuffleActive, shuffleSeed])
+  }, [baseFiltered, shuffleActive, toggleShuffle, shuffleSeed])
 
   const safeIndex = filtered.length > 0 ? currentIndex % filtered.length : 0
   const animal = filtered[safeIndex] || animals[0]
@@ -68,7 +70,7 @@ export default function HomePage() {
   /* При изменении shuffle или категории — на первую */
   useEffect(() => {
     setCurrentIndex(0)
-  }, [shuffleActive, shuffleSeed, activeCategory])
+  }, [shuffleActive, toggleShuffle, shuffleSeed, activeCategory])
 
   /* Навигация с блокировкой во время звука */
   const goNext = useCallback(() => {
@@ -114,7 +116,7 @@ export default function HomePage() {
       stageRef.current?.playSound()
     }, settings.autoplayDelay)
     return () => clearTimeout(timer)
-  }, [animal.id, autoplayActive, settings.autoplay, settings.autoplayDelay])
+  }, [animal.id, autoplayActive, toggleAutoplay, settings.autoplay, settings.autoplayDelay])
 
   const handleCategoryChange = useCallback((id: string) => {
     setActiveCategory(id)
@@ -181,3 +183,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+
