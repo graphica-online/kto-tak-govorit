@@ -41,6 +41,7 @@
 :root {
   /* Акцент — переопределяется через [data-accent] */
   --c-brand: hsl(10, 100%, 61%);
+  --c-accent: var(--c-brand);
   --c-brand-hover: hsl(10, 100%, 64%);
   --c-brand-active: hsl(10, 100%, 55%);
   --c-brand-soft: hsla(10, 100%, 61%, .08);

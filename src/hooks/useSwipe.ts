@@ -1,8 +1,8 @@
-import { useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface SwipeActions {
-  onSwipeLeft?: () => void
-  onSwipeRight?: () => void
+  onLeft?: () => void
+  onRight?: () => void
 }
 
 const MIN_DISTANCE = 50
@@ -10,25 +10,33 @@ const MIN_DISTANCE = 50
 export function useSwipe(actions: SwipeActions) {
   const startX = useRef(0)
   const startY = useRef(0)
+  const actionsRef = useRef(actions)
+  actionsRef.current = actions
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX
-    startY.current = e.touches[0].clientY
-  }, [])
+  useEffect(() => {
+    const onTouchStart = (e: TouchEvent) => {
+      startX.current = e.touches[0].clientX
+      startY.current = e.touches[0].clientY
+    }
 
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - startX.current
-    const dy = e.changedTouches[0].clientY - startY.current
+    const onTouchEnd = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - startX.current
+      const dy = e.changedTouches[0].clientY - startY.current
 
-    // Свайп только если горизонтальное движение больше вертикального
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > MIN_DISTANCE) {
-      if (dx < 0) {
-        actions.onSwipeLeft?.()  // Свайп влево = следующее
-      } else {
-        actions.onSwipeRight?.() // Свайп вправо = предыдущее
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > MIN_DISTANCE) {
+        if (dx < 0) {
+          actionsRef.current.onLeft?.()
+        } else {
+          actionsRef.current.onRight?.()
+        }
       }
     }
-  }, [actions])
 
-  return { onTouchStart, onTouchEnd }
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
+    document.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [])
 }

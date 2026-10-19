@@ -1,0 +1,1805 @@
+﻿
+========== src\layouts\MainLayout.tsx ==========
+import { useState, useCallback, useEffect } from 'react'
+import { Outlet } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import HotkeyCheatsheet from '../components/HotkeyCheatsheet'
+import SettingsPanel from '../components/SettingsPanel'
+import { useSettings } from '../store/useSettings'
+
+export default function MainLayout() {
+  /* в•ђв•ђв•ђ РЎРѕСЃС‚РѕСЏРЅРёСЏ РїР°РЅРµР»РµР№ в•ђв•ђв•ђ */
+  const [cheatsheetOpen, setCheatsheetOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [shuffleActive, setShuffleActive] = useState(false)
+  const [autoplayActive, setAutoplayActive] = useState(true)
+
+  /* в•ђв•ђв•ђ РќР°СЃС‚СЂРѕР№РєРё РёР· Zustand в•ђв•ђв•ђ */
+  const settings = useSettings()
+
+  /* в•ђв•ђв•ђ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ С‚РµРјС‹ в•ђв•ђв•ђ */
+  useEffect(() => {
+    const html = document.documentElement
+    if (settings.theme === 'auto') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      html.dataset.theme = prefersDark ? 'dark' : ''
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      const handler = (e: MediaQueryListEvent) => {
+        html.dataset.theme = e.matches ? 'dark' : ''
+      }
+      mq.addEventListener('change', handler)
+      return () => mq.removeEventListener('change', handler)
+    } else {
+      html.dataset.theme = settings.theme === 'dark' ? 'dark' : ''
+    }
+  }, [settings.theme])
+
+  /* в•ђв•ђв•ђ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ Р°РєС†РµРЅС‚РЅРѕРіРѕ С†РІРµС‚Р° в•ђв•ђв•ђ */
+  useEffect(() => {
+    document.body.dataset.accent = settings.accentColor
+  }, [settings.accentColor])
+
+  /* в•ђв•ђв•ђ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ Р°РІС‚РѕРїР»РµСЏ СЃ РЅР°СЃС‚СЂРѕР№РєР°РјРё в•ђв•ђв•ђ */
+  useEffect(() => {
+    setAutoplayActive(settings.autoplay)
+  }, [settings.autoplay])
+
+  /* в•ђв•ђв•ђ Toggle-С„СѓРЅРєС†РёРё в•ђв•ђв•ђ */
+  const toggleCheatsheet = useCallback(() => setCheatsheetOpen(o => !o), [])
+  const closeCheatsheet = useCallback(() => setCheatsheetOpen(false), [])
+
+  const toggleSettings = useCallback(() => setSettingsOpen(o => !o), [])
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
+
+  const toggleShuffle = useCallback(() => setShuffleActive(s => !s), [])
+
+  const toggleAutoplay = useCallback(() => {
+    setAutoplayActive(prev => {
+      const next = !prev
+      settings.update('autoplay', next)
+      return next
+    })
+  }, [settings])
+
+  /* в•ђв•ђв•ђ Р РµРЅРґРµСЂ в•ђв•ђв•ђ */
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--c-bg-soft)' }}>
+
+      <Navbar
+        onOpenCheatsheet={toggleCheatsheet}
+        onOpenSettings={toggleSettings}
+        onShuffle={toggleShuffle}
+        shuffleActive={shuffleActive}
+        onToggleAutoplay={toggleAutoplay}
+        autoplayActive={autoplayActive}
+      />
+
+      <main style={{ flex: 1 }}>
+        <Outlet context={{
+          toggleCheatsheet,
+          closeCheatsheet,
+          toggleSettings,
+          closeSettings,
+          shuffleActive,
+          toggleShuffle,
+          autoplayActive,
+          toggleAutoplay,
+        }} />
+      </main>
+
+      <HotkeyCheatsheet isOpen={cheatsheetOpen} onClose={closeCheatsheet} />
+      <SettingsPanel isOpen={settingsOpen} onClose={closeSettings} />
+
+    </div>
+  )
+}
+========== src\components\Navbar.tsx ==========
+import { NavLink } from 'react-router-dom'
+import { useSettings } from '../store/useSettings'
+
+interface NavbarProps {
+  onOpenCheatsheet: () => void
+  onOpenSettings: () => void
+  onShuffle: () => void
+  shuffleActive: boolean
+  onToggleAutoplay: () => void
+  autoplayActive: boolean
+}
+
+export default function Navbar({
+  onOpenCheatsheet,
+  onOpenSettings,
+  onShuffle,
+  shuffleActive,
+  onToggleAutoplay,
+  autoplayActive,
+}: NavbarProps) {
+  const settings = useSettings()
+  const isMuted = settings.volume === 0
+  const toggleMute = () => settings.update('volume', isMuted ? 80 : 0)
+
+  const btnBase: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
+    padding: '5px 10px',
+    borderRadius: 8,
+    border: 'none',
+    background: 'transparent',
+    color: 'var(--c-text-secondary)',
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    transition: 'all 0.15s ease',
+  }
+
+  const btnActive: React.CSSProperties = {
+    ...btnBase,
+    background: 'var(--c-accent)',
+    color: '#fff',
+  }
+
+  return (
+    <header
+      className="glass"
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 12px',
+        gap: 8,
+        borderBottom: '1px solid rgba(128,128,128,0.12)',
+      }}
+    >
+      {/* в”Ђв”Ђ Р›РѕРіРѕС‚РёРї в”Ђв”Ђ */}
+      <NavLink
+        to="/"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          textDecoration: 'none',
+          color: 'var(--c-text-strong)',
+          fontWeight: 700,
+          fontSize: 14,
+          flexShrink: 0,
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="4" r="2" />
+          <circle cx="18" cy="8" r="2" />
+          <circle cx="4" cy="8" r="2" />
+          <path d="M12 14c-2.5 0-4.5 1.5-5 3.5-.3 1.2.6 2.5 2 2.5h6c1.4 0 2.3-1.3 2-2.5-.5-2-2.5-3.5-5-3.5z" />
+        </svg>
+        <span className="nav-logo-full">РљС‚Рѕ С‚Р°Рє РіРѕРІРѕСЂРёС‚?</span>
+        <span className="nav-logo-short">РљРўР“</span>
+      </NavLink>
+
+      {/* в”Ђв”Ђ РќР°РІРёРіР°С†РёСЏ в”Ђв”Ђ */}
+      <nav style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        {[
+          { to: '/', label: 'Р“Р»Р°РІРЅР°СЏ' },
+          { to: '/uikit', label: 'UI Kit' },
+          { to: '/about', label: 'Рћ РїСЂРѕРµРєС‚Рµ' },
+        ].map(link => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.to === '/'}
+            style={({ isActive }) => ({
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: isActive ? 'var(--c-accent)' : 'var(--c-text-secondary)',
+              background: isActive ? 'rgba(128,128,128,0.08)' : 'transparent',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+            })}
+          >
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* в”Ђв”Ђ РљРЅРѕРїРєРё в”Ђв”Ђ */}
+      <div style={{ display: 'flex', gap: 2, alignItems: 'center', flexShrink: 0 }}>
+
+        {/* РђРІС‚РѕРїР»РµР№ */}
+        <button
+          onClick={onToggleAutoplay}
+          style={autoplayActive ? btnActive : btnBase}
+          title="РђРІС‚РѕРїР»РµР№"
+        >
+          {autoplayActive ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 001.5.86l11-6.86a1 1 0 000-1.72l-11-6.86A1 1 0 008 5.14z" /></svg>
+          )}
+          <span className="nav-btn-text">РђРІС‚РѕРїР»РµР№</span>
+        </button>
+
+        {/* Р—РІСѓРє */}
+        <button
+          onClick={toggleMute}
+          style={isMuted ? btnActive : btnBase}
+          title={isMuted ? 'Р’РєР»СЋС‡РёС‚СЊ Р·РІСѓРє' : 'Р’С‹РєР»СЋС‡РёС‚СЊ Р·РІСѓРє'}
+        >
+          {isMuted ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" /></svg>
+          )}
+          <span className="nav-btn-text">Р—РІСѓРє</span>
+        </button>
+
+        {/* РЎР»СѓС‡Р°Р№РЅС‹Р№ */}
+        <button
+          onClick={onShuffle}
+          style={shuffleActive ? btnActive : btnBase}
+          title="РЎР»СѓС‡Р°Р№РЅС‹Р№ РїРѕСЂСЏРґРѕРє"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" /></svg>
+          <span className="nav-btn-text">РЎР»СѓС‡Р°Р№РЅС‹Р№</span>
+        </button>
+
+        {/* Р“РѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё */}
+        <button
+          onClick={onOpenCheatsheet}
+          style={btnBase}
+          title="Р“РѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h8" /></svg>
+          <span className="nav-btn-text">РљР»Р°РІРёС€Рё</span>
+        </button>
+
+        {/* РќР°СЃС‚СЂРѕР№РєРё */}
+        <button
+          onClick={onOpenSettings}
+          style={btnBase}
+          title="РќР°СЃС‚СЂРѕР№РєРё"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+          <span className="nav-btn-text">РќР°СЃС‚СЂРѕР№РєРё</span>
+        </button>
+      </div>
+
+      {/* в”Ђв”Ђ РђРґР°РїС‚РёРІ в”Ђв”Ђ */}
+      <style>{`
+        .nav-logo-full { display: none; }
+        .nav-logo-short { display: inline; }
+        .nav-btn-text { display: none; }
+        @media (min-width: 768px) {
+          .nav-logo-full { display: inline; }
+          .nav-logo-short { display: none; }
+          .nav-btn-text { display: inline; }
+        }
+      `}</style>
+    </header>
+  )
+}
+========== src\components\SettingsPanel.tsx ==========
+import { motion, AnimatePresence } from 'framer-motion'
+import { useSettings, type TransitionType, type ThemeMode, type AccentColor } from '../store/useSettings'
+
+interface Props {
+  isOpen: boolean
+  onClose: () => void
+}
+
+const accents: { value: AccentColor; label: string; color: string }[] = [
+  { value: 'red', label: 'РљСЂР°СЃРЅС‹Р№', color: 'hsl(0,100%,55%)' },
+  { value: 'orange', label: 'РћСЂР°РЅР¶РµРІС‹Р№', color: 'hsl(25,100%,55%)' },
+  { value: 'amber', label: 'РЇРЅС‚Р°СЂРЅС‹Р№', color: 'hsl(38,100%,50%)' },
+  { value: 'green', label: 'Р—РµР»С‘РЅС‹Р№', color: 'hsl(145,100%,42%)' },
+  { value: 'teal', label: 'Р‘РёСЂСЋР·Р°', color: 'hsl(175,100%,40%)' },
+  { value: 'blue', label: 'РЎРёРЅРёР№', color: 'hsl(215,100%,55%)' },
+  { value: 'indigo', label: 'РРЅРґРёРіРѕ', color: 'hsl(240,100%,65%)' },
+  { value: 'purple', label: 'Р¤РёРѕР»РµС‚', color: 'hsl(270,100%,60%)' },
+  { value: 'pink', label: 'Р РѕР·РѕРІС‹Р№', color: 'hsl(330,100%,60%)' },
+]
+
+const transitions: { value: TransitionType; label: string; desc: string }[] = [
+  { value: 'smooth', label: 'РџР»Р°РІРЅС‹Р№', desc: 'Slide + fade' },
+  { value: 'simple', label: 'РџСЂРѕСЃС‚РѕР№', desc: 'РўРѕР»СЊРєРѕ fade' },
+  { value: 'none', label: 'Р‘РµР· Р°РЅРёРјР°С†РёРё', desc: 'РњРіРЅРѕРІРµРЅРЅРѕ' },
+]
+
+const themes: { value: ThemeMode; label: string }[] = [
+  { value: 'auto', label: 'РђРІС‚Рѕ (СЃРёСЃС‚РµРјР°)' },
+  { value: 'light', label: 'РЎРІРµС‚Р»Р°СЏ' },
+  { value: 'dark', label: 'РўС‘РјРЅР°СЏ' },
+]
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 48, height: 28, borderRadius: 999, border: 'none', cursor: 'pointer',
+        background: checked ? 'var(--c-brand)' : 'var(--c-border-strong)',
+        position: 'relative', transition: 'background .25s', flexShrink: 0,
+      }}
+    >
+      <div style={{
+        width: 22, height: 22, borderRadius: '50%', background: '#fff',
+        position: 'absolute', top: 3, left: checked ? 23 : 3,
+        boxShadow: '0 2px 6px rgba(0,0,0,.2)', transition: 'left .25s',
+      }} />
+    </button>
+  )
+}
+
+function Row({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: 16, padding: '14px 0', borderBottom: '1px solid var(--c-border)',
+    }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--c-text-strong)' }}>{label}</div>
+        {desc && <div style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 2 }}>{desc}</div>}
+      </div>
+      <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function GroupTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
+      color: 'var(--c-text-dim)', marginTop: 20, marginBottom: 4,
+    }}>
+      {children}
+    </div>
+  )
+}
+
+export default function SettingsPanel({ isOpen, onClose }: Props) {
+  const settings = useSettings()
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,.4)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            onClick={e => e.stopPropagation()}
+            className="glass"
+            style={{
+              width: '100%', maxWidth: 480, maxHeight: '85vh',
+              borderRadius: 28, padding: 28,
+              overflowY: 'auto',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 700, color: 'var(--c-text-strong)' }}>вљ™ РќР°СЃС‚СЂРѕР№РєРё</h3>
+              <button
+                onClick={onClose}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: 'var(--c-bg-soft)', border: 'none',
+                  cursor: 'pointer', fontSize: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--c-text-muted)',
+                }}
+              >
+                вњ•
+              </button>
+            </div>
+
+            {/* Р’РѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ */}
+            <GroupTitle>Р’РѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ</GroupTitle>
+            
+            <Row label="Р—Р°РґРµСЂР¶РєР° Р°РІС‚РѕРїР»РµСЏ" desc={`${settings.autoplayDelay} РјСЃ`}>
+              <input
+                type="range" min={0} max={3000} step={100}
+                value={settings.autoplayDelay}
+                onChange={e => settings.update('autoplayDelay', Number(e.target.value))}
+                style={{ width: 120, accentColor: 'var(--c-brand)' }}
+              />
+            </Row>
+                        <Row label="Р’СЃРµ РІР°СЂРёР°РЅС‚С‹ Р·РІСѓРєР°" desc="РџСЂРѕРёРіСЂС‹РІР°С‚СЊ РІСЃРµ Р·Р°РїРёСЃРё РїРѕРґСЂСЏРґ, Р° РЅРµ РѕРґРЅСѓ СЃР»СѓС‡Р°Р№РЅСѓСЋ">
+              <Toggle checked={settings.playAllVariants} onChange={v => settings.update('playAllVariants', v)} />
+            </Row>
+            <Row label="Р“СЂРѕРјРєРѕСЃС‚СЊ" desc={`${settings.volume}%`}>
+              <input
+                type="range" min={0} max={100} step={5}
+                value={settings.volume}
+                onChange={e => settings.update('volume', Number(e.target.value))}
+                style={{ width: 120, accentColor: 'var(--c-brand)' }}
+              />
+            </Row>
+
+            {/* РќР°РІРёРіР°С†РёСЏ */}
+            <GroupTitle>РќР°РІРёРіР°С†РёСЏ</GroupTitle>
+            <Row label="РђРІС‚РѕРїРµСЂРµС…РѕРґ" desc="РЎР»Р°Р№Рґ-С€РѕСѓ">
+              <Toggle checked={settings.autoNext} onChange={v => settings.update('autoNext', v)} />
+            </Row>
+            {settings.autoNext && (
+              <Row label="РРЅС‚РµСЂРІР°Р»" desc={`${settings.autoNextInterval} СЃРµРє`}>
+                <input
+                  type="range" min={3} max={60} step={1}
+                  value={settings.autoNextInterval}
+                  onChange={e => settings.update('autoNextInterval', Number(e.target.value))}
+                  style={{ width: 120, accentColor: 'var(--c-brand)' }}
+                />
+              </Row>
+            )}
+            <Row label="Р¦РёРєР»РёС‡РµСЃРєР°СЏ РЅР°РІРёРіР°С†РёСЏ" desc="РџРѕСЃР»Рµ РїРѕСЃР»РµРґРЅРµРіРѕ в†’ РїРµСЂРІРѕРµ">
+              <Toggle checked={settings.loopNavigation} onChange={v => settings.update('loopNavigation', v)} />
+            </Row>
+
+            {/* Р’РЅРµС€РЅРёР№ РІРёРґ */}
+            <GroupTitle>Р’РЅРµС€РЅРёР№ РІРёРґ</GroupTitle>
+            <Row label="РўРµРјР°">
+              <select
+                value={settings.theme}
+                onChange={e => settings.update('theme', e.target.value as ThemeMode)}
+                style={{
+                  padding: '6px 12px', borderRadius: 10,
+                  border: '1px solid var(--c-border-strong)',
+                  background: 'var(--c-bg)', color: 'var(--c-text-strong)',
+                  fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                {themes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </Row>
+            <Row label="РђРєС†РµРЅС‚РЅС‹Р№ С†РІРµС‚">
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {accents.map(a => (
+                  <button
+                    key={a.value}
+                    onClick={() => settings.update('accentColor', a.value)}
+                    title={a.label}
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: a.color, border: 'none', cursor: 'pointer',
+                      outline: settings.accentColor === a.value ? '3px solid var(--c-text-strong)' : '2px solid transparent',
+                      outlineOffset: 2,
+                      transition: 'outline .15s',
+                    }}
+                  />
+                ))}
+              </div>
+            </Row>
+            <Row label="РџРµСЂРµС…РѕРґ РјРµР¶РґСѓ РєР°СЂС‚РѕС‡РєР°РјРё">
+              <select
+                value={settings.transitionType}
+                onChange={e => settings.update('transitionType', e.target.value as TransitionType)}
+                style={{
+                  padding: '6px 12px', borderRadius: 10,
+                  border: '1px solid var(--c-border-strong)',
+                  background: 'var(--c-bg)', color: 'var(--c-text-strong)',
+                  fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                {transitions.map(t => <option key={t.value} value={t.value}>{t.label} вЂ” {t.desc}</option>)}
+              </select>
+            </Row>
+            <Row label="РџРѕРєР°Р·С‹РІР°С‚СЊ Р±РµР· Р·РІСѓРєР°" desc="Р‘Р°Р±РѕС‡РєР°, СѓР»РёС‚РєР° Рё РґСЂ.">
+              <Toggle checked={settings.showSilent} onChange={v => settings.update('showSilent', v)} />
+            </Row>
+
+            {/* РџСЂРѕС‡РµРµ */}
+            <GroupTitle>РџСЂРѕС‡РµРµ</GroupTitle>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, marginBottom: 8 }}>
+              <button
+                onClick={() => {
+                  settings.reset()
+                  document.body.dataset.accent = 'red'
+                }}
+                style={{
+                  padding: '10px 20px', borderRadius: 14,
+                  background: 'transparent', border: '1px solid var(--c-border-strong)',
+                  color: 'var(--c-text-strong)', fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                РЎР±СЂРѕСЃРёС‚СЊ РІСЃС‘
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+========== src\components\AnimalStage.tsx ==========
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import PlayButton, { type PlayButtonHandle } from './PlayButton'
+import type { Animal } from '../data/types'
+import type { TransitionType } from '../store/useSettings'
+
+export interface AnimalStageHandle {
+  playSound: () => void
+}
+
+interface Props {
+  animal: Animal
+  index: number
+  total: number
+  onPrev: () => void
+  onNext: () => void
+  muted?: boolean
+  volume?: number
+  transitionType?: TransitionType
+  onPlayStateChange?: (playing: boolean) => void
+  playAllVariants?: boolean
+}
+
+const categoryHues: Record<string, number> = {
+  pets: 30, farm: 90, africa: 35, forest: 140,
+  birds: 200, sea: 195, insects: 60,
+}
+
+const emojiMap: Record<string, string> = {
+  cat: 'рџђ±', dog: 'рџђ¶', cow: 'рџђ„', chicken: 'рџђ”',
+  lion: 'рџ¦Ѓ', elephant: 'рџђ', bear: 'рџђ»', wolf: 'рџђє',
+  dolphin: 'рџђ¬', owl: 'рџ¦‰',
+}
+
+// Р’Р°СЂРёР°РЅС‚С‹ Р°РЅРёРјР°С†РёРё
+const variants = {
+  smooth: {
+    initial: { opacity: 0, x: 40 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -40 },
+  },
+  simple: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+  },
+  none: {
+    initial: {},
+    animate: {},
+    exit: {},
+  },
+}
+
+const AnimalStage = forwardRef<AnimalStageHandle, Props>(
+      ({ animal, index, total, onPrev, onNext, muted = false, volume = 0.8, transitionType = 'smooth', onPlayStateChange, playAllVariants = false }, ref) => {
+    const hue = categoryHues[animal.categories[0]] ?? 200
+    const emoji = emojiMap[animal.id] ?? 'рџђѕ'
+    const [imgLoaded, setImgLoaded] = useState(false)
+    const [imgError, setImgError] = useState(false)
+    const playBtnRef = useRef<PlayButtonHandle>(null)
+
+    const hasPhoto = !!animal.photo && !imgError
+    const v = variants[transitionType]
+    const dur = transitionType === 'none' ? 0 : 0.35
+
+    useImperativeHandle(ref, () => ({
+      playSound: () => playBtnRef.current?.play(),
+    }))
+
+    return (
+      <div style={{
+        flex: 1, position: 'relative',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
+        background: `linear-gradient(135deg, hsl(${hue}, 100%, 92%), hsl(${hue + 30}, 100%, 96%))`,
+      }}>
+
+        {/* Р¤РѕС‚Рѕ РёР»Рё СЌРјРѕРґР·Рё */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={animal.id}
+            initial={v.initial}
+            animate={v.animate}
+            exit={v.exit}
+            transition={{ duration: dur, ease: [0.4, 0, 0.2, 1] }}
+            style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            {hasPhoto ? (
+              <img
+                src={animal.photo}
+                alt={animal.name}
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgError(true)}
+                style={{
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center',
+                  opacity: imgLoaded ? 1 : 0,
+                  transition: 'opacity .5s ease',
+                }}
+              />
+            ) : (
+              <div style={{
+                fontSize: 'min(35vw, 300px)',
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,.15))',
+                userSelect: 'none',
+              }}>
+                {emoji}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Glass Panel Wrapper */}
+        <div style={{
+          position: 'absolute',
+          right: 32, top: '50%',
+          transform: 'translateY(-50%)',
+          width: 360,
+          display: 'flex', flexDirection: 'column', gap: 12,
+          zIndex: 10,
+        }}>
+
+          {/* Info Panel */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`panel-${animal.id}`}
+              initial={v.initial}
+              animate={v.animate}
+              exit={v.exit}
+              transition={{ duration: dur, ease: [0.4, 0, 0.2, 1] }}
+              className="glass"
+              style={{
+                padding: 28, borderRadius: 28,
+                display: 'flex', flexDirection: 'column', gap: 16,
+              }}
+            >
+              <span style={{
+                display: 'inline-flex', padding: '5px 12px', borderRadius: 999,
+                fontSize: 12, fontWeight: 600, width: 'fit-content',
+                background: 'var(--c-brand-soft)', color: 'var(--c-brand)',
+              }}>
+                {animal.animalClass}
+              </span>
+
+              <h2 style={{
+                fontSize: 42, fontWeight: 800, letterSpacing: '-.03em',
+                lineHeight: 1, color: 'var(--c-text-strong)',
+              }}>
+                {animal.name}
+              </h2>
+
+              <p style={{ fontSize: 15, color: 'var(--c-text-muted)', lineHeight: 1.6 }}>
+                {animal.description}
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {[
+                  { label: 'РЎСЂРµРґР°', value: animal.habitat },
+                  { label: 'Р—РІСѓРє', value: animal.silent ? 'рџ”‡ РќРµС‚' : `рџ”Љ ${animal.sounds.length}` },
+                  { label: 'РџРѕР·РёС†РёСЏ', value: `${index + 1} / ${total}` },
+                ].map(row => (
+                  <div key={row.label} style={{
+                    display: 'flex', justifyContent: 'space-between',
+                    fontSize: 13, padding: '5px 0',
+                    borderBottom: '1px solid var(--c-border)',
+                  }}>
+                    <span style={{ color: 'var(--c-text-dim)' }}>{row.label}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--c-text-strong)', fontVariantNumeric: 'tabular-nums' }}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+                <PlayButton
+                ref={playBtnRef}
+                soundUrls={animal.sounds}
+                silent={animal.silent}
+                muted={muted}
+                volume={volume}
+                onPlayStateChange={onPlayStateChange}
+                playAllVariants={playAllVariants}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+            className="glass"
+            style={{
+              padding: 10, borderRadius: 20,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            <motion.button
+              onClick={onPrev}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                flex: 1, height: 48, borderRadius: 14,
+                background: 'rgba(255,255,255,.5)',
+                border: '1px solid rgba(255,255,255,.4)',
+                cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                color: 'var(--c-text-strong)',
+              }}
+            >
+              <span style={{ fontSize: 22 }}>вЂ№</span> РќР°Р·Р°Рґ
+            </motion.button>
+            <motion.button
+              onClick={onNext}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                flex: 1, height: 48, borderRadius: 14,
+                background: 'rgba(255,255,255,.5)',
+                border: '1px solid rgba(255,255,255,.4)',
+                cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                color: 'var(--c-text-strong)',
+              }}
+            >
+              Р’РїРµСЂС‘Рґ <span style={{ fontSize: 22 }}>вЂє</span>
+            </motion.button>
+          </motion.div>
+
+          {/* Progress */}
+          <div style={{ height: 4, borderRadius: 999, background: 'rgba(255,255,255,.3)', overflow: 'hidden' }}>
+            <motion.div
+              key={`progress-${index}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${((index + 1) / total) * 100}%` }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              style={{ height: '100%', background: 'var(--c-brand)' }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+)
+
+AnimalStage.displayName = 'AnimalStage'
+export default AnimalStage
+========== src\components\PlayButton.tsx ==========
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
+import { motion } from 'framer-motion'
+
+export interface PlayButtonHandle {
+  play: () => void
+}
+
+interface Props {
+  soundUrls: string[]
+  silent?: boolean
+  muted?: boolean
+  volume?: number
+  onPlayStateChange?: (playing: boolean) => void
+    playAllVariants?: boolean
+}
+
+const PlayButton = forwardRef<PlayButtonHandle, Props>(
+    ({ soundUrls, silent = false, muted = false, volume = 0.8, onPlayStateChange, playAllVariants = false }, ref) => {
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [hasError, setHasError] = useState(false)
+      // РЎР±СЂРѕСЃ РѕС€РёР±РєРё РїСЂРё СЃРјРµРЅРµ Р·РІСѓРєРѕРІ (С„РёРєСЃ Р±Р°РіР° СЃ РїРµСЂРІС‹Рј Р¶РёРІРѕС‚РЅС‹Рј)
+  const prevUrlsRef = useRef(soundUrls)
+  if (prevUrlsRef.current !== soundUrls) {
+    prevUrlsRef.current = soundUrls
+    setHasError(false)
+  }
+    const [duration, setDuration] = useState(3)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+    const lastIndexRef = useRef<number>(-1)
+    const [queueIndex, setQueueIndex] = useState(0)
+    const queueRef = useRef(false)
+
+    const isDisabled = silent || soundUrls.length === 0
+
+    /* Р’С‹Р±РѕСЂ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ Р·РІСѓРєР° (РЅРµ РїРѕРІС‚РѕСЂСЏСЏ РїСЂРµРґС‹РґСѓС‰РёР№) */
+    const pickRandomSound = (): string => {
+      if (soundUrls.length === 1) return soundUrls[0]
+      let idx: number
+      do {
+        idx = Math.floor(Math.random() * soundUrls.length)
+      } while (idx === lastIndexRef.current && soundUrls.length > 1)
+      lastIndexRef.current = idx
+      return soundUrls[idx]
+    }
+
+    const stopAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+        audioRef.current = null
+      }
+      setIsPlaying(false)
+      onPlayStateChange?.(false)
+    }
+
+      const playSingle = (url: string) => {
+    const audio = new Audio(url)
+    audio.volume = muted ? 0 : volume
+    audioRef.current = audio
+
+    audio.addEventListener('loadedmetadata', () => {
+      if (!isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+        setDuration(audio.duration)
+      }
+    })
+
+    audio.addEventListener('ended', () => {
+      // Р•СЃР»Рё СЂРµР¶РёРј В«РІСЃРµ РІР°СЂРёР°РЅС‚С‹В» вЂ” РёРіСЂР°РµРј СЃР»РµРґСѓСЋС‰РёР№
+      if (queueRef.current && queueIndex < soundUrls.length - 1) {
+        setQueueIndex(q => q + 1)
+        playSingle(soundUrls[queueIndex + 1])
+      } else {
+        queueRef.current = false
+        setQueueIndex(0)
+        setIsPlaying(false)
+        onPlayStateChange?.(false)
+      }
+    })
+
+    audio.addEventListener('error', () => {
+      setHasError(true)
+      setIsPlaying(false)
+      queueRef.current = false
+      onPlayStateChange?.(false)
+    })
+
+    const promise = audio.play()
+    if (promise !== undefined) {
+      promise
+        .then(() => {
+          setIsPlaying(true)
+          setHasError(false)
+          onPlayStateChange?.(true)
+        })
+        .catch(() => {
+          setTimeout(() => {
+            audio.play()
+              .then(() => { setIsPlaying(true); setHasError(false); onPlayStateChange?.(true) })
+              .catch(() => { setHasError(true); onPlayStateChange?.(false) })
+          }, 50)
+        })
+    }
+  }
+
+  const startPlay = () => {
+    if (isDisabled) return
+
+    if (isPlaying) {
+      stopAudio()
+      return
+    }
+
+    if (playAllVariants && soundUrls.length > 1) {
+      queueRef.current = true
+      setQueueIndex(0)
+      playSingle(soundUrls[0])
+    } else {
+      const url = pickRandomSound()
+      playSingle(url)
+    }
+  }
+
+    useImperativeHandle(ref, () => ({ play: startPlay }))
+
+    const getLabel = () => {
+      if (silent) return 'РќРµС‚ Р·РІСѓРєР°'
+      if (soundUrls.length === 0) return 'РќРµС‚ С„Р°Р№Р»Р°'
+      if (hasError) return 'Р—РІСѓРє РЅРµ РЅР°Р№РґРµРЅ'
+      if (isPlaying) return 'Р’РѕСЃРїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ...'
+      if (soundUrls.length > 1) return `РџРѕСЃР»СѓС€Р°С‚СЊ (${soundUrls.length} РІР°СЂРёР°С†РёРё)`
+      return 'РџРѕСЃР»СѓС€Р°С‚СЊ РіРѕР»РѕСЃ'
+    }
+
+    const getIcon = () => {
+      if (silent || soundUrls.length === 0) return 'рџ”‡'
+      if (hasError) return 'вљ пёЏ'
+      if (isPlaying) return 'вЏё'
+      return 'в–¶'
+    }
+
+    return (
+      <motion.button
+        onClick={startPlay}
+        disabled={isDisabled}
+        whileHover={isDisabled ? {} : { scale: 1.02 }}
+        whileTap={isDisabled ? {} : { scale: 0.98 }}
+        style={{
+          position: 'relative',
+          width: '100%', height: 60, borderRadius: 20,
+          background: isDisabled ? 'var(--c-bg-mute)' : 'var(--c-brand)',
+          color: isDisabled ? 'var(--c-text-dim)' : '#fff',
+          border: 'none',
+          cursor: isDisabled ? 'not-allowed' : 'pointer',
+          fontSize: 17, fontWeight: 700,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          boxShadow: isDisabled ? 'none' : 'var(--shadow-brand)',
+          overflow: 'hidden',
+        }}
+      >
+        {isPlaying && (
+          <>
+            <motion.div
+              style={{ position: 'absolute', inset: 0, borderRadius: 20, border: '2px solid rgba(255,255,255,.4)' }}
+              animate={{ scale: [1, 1.05, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              style={{ position: 'absolute', inset: 0, borderRadius: 20, border: '2px solid rgba(255,255,255,.3)' }}
+              animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+            />
+          </>
+        )}
+
+        <motion.span
+          style={{ fontSize: 22, position: 'relative', zIndex: 1 }}
+          animate={isPlaying ? { scale: [1, 1.2, 1] } : {}}
+          transition={{ duration: 0.3 }}
+        >
+          {getIcon()}
+        </motion.span>
+
+        <span style={{ position: 'relative', zIndex: 1 }}>{getLabel()}</span>
+
+        {isPlaying && (
+          <motion.div
+            key={`bar-${Date.now()}`}
+            style={{ position: 'absolute', bottom: 0, left: 0, height: 3, background: 'rgba(255,255,255,.6)', borderRadius: 2 }}
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration, ease: 'linear' }}
+          />
+        )}
+      </motion.button>
+    )
+  }
+)
+
+PlayButton.displayName = 'PlayButton'
+export default PlayButton
+========== src\components\CategoryBar.tsx ==========
+import { motion } from 'framer-motion'
+import categoriesData from '../data/categories.json'
+import animalsData from '../data/animals.json'
+
+interface Props {
+  active: string
+  onChange: (id: string) => void
+}
+
+const categories = categoriesData as { id: string; name: string; emoji: string }[]
+const animals = animalsData as { categories: string[] }[]
+
+export default function CategoryBar({ active, onChange }: Props) {
+  const allCount = animals.length
+
+  const items = [
+    { id: 'all', emoji: 'рџЋІ', name: 'Р’СЃРµ', count: allCount },
+    ...categories.map(c => ({
+      ...c,
+      count: animals.filter(a => a.categories.includes(c.id)).length,
+    })),
+  ]
+
+  return (
+    <div style={{
+      padding: '16px 24px',
+      display: 'flex', flexWrap: 'wrap', gap: 8,
+      borderBottom: '1px solid var(--c-border)',
+      background: 'var(--c-bg)',
+    }}>
+      {items.map(item => {
+        const isActive = active === item.id
+        return (
+          <motion.button
+            key={item.id}
+            onClick={() => onChange(item.id)}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              position: 'relative',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 18px', borderRadius: 999,
+              fontSize: 14, fontWeight: 600,
+              cursor: 'pointer',
+              background: isActive ? 'var(--c-brand)' : 'var(--c-bg-soft)',
+              color: isActive ? '#fff' : 'var(--c-text-strong)',
+              border: isActive ? '1px solid var(--c-brand)' : '1px solid var(--c-border)',
+              boxShadow: isActive ? 'var(--shadow-brand)' : 'none',
+              overflow: 'hidden',
+            }}
+          >
+            {/* РђРЅРёРјРёСЂРѕРІР°РЅРЅР°СЏ РїРѕРґСЃРІРµС‚РєР° Р°РєС‚РёРІРЅРѕРіРѕ */}
+            {isActive && (
+              <motion.div
+                layoutId="bubble-highlight"
+                style={{
+                  position: 'absolute', inset: 0,
+                  background: 'var(--c-brand)',
+                  borderRadius: 999,
+                  zIndex: 0,
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span style={{ position: 'relative', zIndex: 1, fontSize: 18 }}>{item.emoji}</span>
+            <span style={{ position: 'relative', zIndex: 1 }}>{item.name}</span>
+            <span style={{ position: 'relative', zIndex: 1, fontSize: 12, opacity: 0.7 }}>{item.count}</span>
+          </motion.button>
+        )
+      })}
+    </div>
+  )
+}
+========== src\components\HotkeyCheatsheet.tsx ==========
+import { motion, AnimatePresence } from 'framer-motion'
+
+interface Props {
+  isOpen: boolean
+  onClose: () => void
+}
+
+const hotkeys = [
+  { keys: 'в†’  в†“  D', action: 'РЎР»РµРґСѓСЋС‰РµРµ Р¶РёРІРѕС‚РЅРѕРµ' },
+  { keys: 'в†ђ  в†‘  A', action: 'РџСЂРµРґС‹РґСѓС‰РµРµ Р¶РёРІРѕС‚РЅРѕРµ' },
+  { keys: 'Space  Enter', action: 'РџСЂРѕРёРіСЂР°С‚СЊ Р·РІСѓРє' },
+  { keys: 'M', action: 'Mute / Unmute' },
+  { keys: '+  в€’', action: 'Р“СЂРѕРјРєРѕСЃС‚СЊ В±5%' },
+  { keys: 'S', action: 'РћС‚РєСЂС‹С‚СЊ РЅР°СЃС‚СЂРѕР№РєРё' },
+  { keys: 'F', action: 'РџРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј' },
+  { keys: 'Home  End', action: 'РџРµСЂРІРѕРµ / РїРѕСЃР»РµРґРЅРµРµ' },
+  { keys: '1 вЂ“ 9', action: 'Р’С‹Р±СЂР°С‚СЊ РєР°С‚РµРіРѕСЂРёСЋ' },
+  { keys: '?  H', action: 'Р­С‚Р° С€РїР°СЂРіР°Р»РєР°' },
+  { keys: 'Esc', action: 'Р—Р°РєСЂС‹С‚СЊ' },
+]
+
+export default function HotkeyCheatsheet({ isOpen, onClose }: Props) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,.5)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--c-bg)',
+              borderRadius: 28,
+              padding: 32,
+              maxWidth: 480,
+              width: '100%',
+              boxShadow: '0 30px 80px rgba(0,0,0,.3)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 700, color: 'var(--c-text-strong)' }}>
+                вЊЁпёЏ Р“РѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё
+              </h3>
+              <button
+                onClick={onClose}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: 'var(--c-bg-soft)', border: 'none',
+                  cursor: 'pointer', fontSize: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--c-text-muted)',
+                }}
+              >
+                вњ•
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {hotkeys.map(h => (
+                <div
+                  key={h.keys}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '8px 12px', borderRadius: 10,
+                    background: 'var(--c-bg-soft)',
+                  }}
+                >
+                  <span style={{ fontSize: 14, color: 'var(--c-text-muted)' }}>{h.action}</span>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {h.keys.split('  ').map(k => (
+                      <kbd
+                        key={k}
+                        style={{
+                          padding: '3px 8px',
+                          background: 'var(--c-bg)',
+                          border: '1px solid var(--c-border-strong)',
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-mono)',
+                          color: 'var(--c-text-strong)',
+                          boxShadow: '0 1px 2px rgba(0,0,0,.08)',
+                        }}
+                      >
+                        {k}
+                      </kbd>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ marginTop: 16, fontSize: 12, color: 'var(--c-text-dim)', textAlign: 'center' }}>
+              РќР°Р¶РјРёС‚Рµ <kbd style={{ padding: '2px 6px', background: 'var(--c-bg-soft)', borderRadius: 4, border: '1px solid var(--c-border)', fontSize: 11 }}>Esc</kbd> РёР»Рё РєР»РёРєРЅРёС‚Рµ РІРЅРµ РѕРєРЅР° С‡С‚РѕР±С‹ Р·Р°РєСЂС‹С‚СЊ
+            </p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+========== src\pages\HomePage.tsx ==========
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useOutletContext } from 'react-router-dom'
+import CategoryBar from '../components/CategoryBar'
+import AnimalStage, { type AnimalStageHandle } from '../components/AnimalStage'
+import { useKeyboard } from '../hooks/useKeyboard'
+import { useSwipe } from '../hooks/useSwipe'
+import { useSettings } from '../store/useSettings'
+import animalsData from '../data/animals.json'
+import categoriesData from '../data/categories.json'
+import type { Animal } from '../data/types'
+
+const animals: Animal[] = animalsData
+const categories = categoriesData as { id: string; name: string; emoji: string }[]
+const allCategoryIds = ['all', ...categories.map(c => c.id)]
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const result = [...arr]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+interface OutletCtx {
+  autoplayActive: boolean
+  toggleAutoplay: () => void
+  toggleCheatsheet: () => void
+  closeCheatsheet: () => void
+  toggleSettings: () => void
+  closeSettings: () => void
+  shuffleActive: boolean
+  toggleShuffle: () => void
+}
+
+export default function HomePage() {
+  const {
+    toggleCheatsheet, closeCheatsheet,
+    toggleSettings, closeSettings,
+    shuffleActive,
+    autoplayActive,
+  } = useOutletContext<OutletCtx>()
+
+  const settings = useSettings()
+  const stageRef = useRef<AnimalStageHandle>(null)
+  const isPlayingRef = useRef(false)
+
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [shuffleSeed, setShuffleSeed] = useState(0)
+
+  const baseFiltered = useMemo(() => {
+    if (activeCategory === 'all') return animals
+    return animals.filter(a => a.categories.includes(activeCategory))
+  }, [activeCategory])
+
+  const filtered = useMemo(() => {
+    if (!shuffleActive) return baseFiltered
+    return shuffleArray(baseFiltered)
+  }, [baseFiltered, shuffleActive, shuffleSeed])
+
+  const animal = filtered[currentIndex] ?? filtered[0] ?? animals[0]
+
+  useEffect(() => {
+    setCurrentIndex(0)
+  }, [activeCategory, shuffleActive, shuffleSeed])
+
+  const goNext = useCallback(() => {
+    setCurrentIndex(i => {
+      if (i >= filtered.length - 1) {
+        return settings.loopNavigation ? 0 : i
+      }
+      return i + 1
+    })
+  }, [filtered.length, settings.loopNavigation])
+
+  const goPrev = useCallback(() => {
+    setCurrentIndex(i => {
+      if (i <= 0) {
+        return settings.loopNavigation ? filtered.length - 1 : 0
+      }
+      return i - 1
+    })
+  }, [filtered.length, settings.loopNavigation])
+
+  const playSound = useCallback(() => {
+    stageRef.current?.playSound()
+  }, [])
+
+  /* РђРІС‚РѕРїР»РµР№ вЂ” Р·РІСѓРє */
+  useEffect(() => {
+    if (!autoplayActive || !settings.autoplay) return
+    const timer = setTimeout(() => {
+      if (!isPlayingRef.current && stageRef.current) {
+        isPlayingRef.current = true
+        stageRef.current.playSound()
+        setTimeout(() => { isPlayingRef.current = false }, 2000)
+      }
+    }, settings.autoplayDelay)
+    return () => clearTimeout(timer)
+  }, [animal?.id, autoplayActive, settings.autoplay, settings.autoplayDelay])
+
+  /* РђРІС‚Рѕ-РїРµСЂРµС…РѕРґ Рє СЃР»РµРґСѓСЋС‰РµРјСѓ */
+  useEffect(() => {
+    if (!settings.autoNext || !autoplayActive) return
+    if (filtered.length <= 1) return
+    const timer = setInterval(goNext, settings.autoNextInterval)
+    return () => clearInterval(timer)
+  }, [settings.autoNext, settings.autoNextInterval, filtered.length, autoplayActive, goNext])
+
+  /* РљР»Р°РІРёР°С‚СѓСЂР° вЂ” РїСЂР°РІРёР»СЊРЅС‹Рµ РёРјРµРЅР° РєРѕР»Р±СЌРєРѕРІ */
+  useKeyboard({
+    onNext: goNext,
+    onPrev: goPrev,
+    onPlay: playSound,
+    onCheatsheet: toggleCheatsheet,
+    onEscape: closeCheatsheet,
+    onSettings: toggleSettings,
+    onMute: () => settings.update('volume', settings.volume === 0 ? 80 : 0),
+  })
+
+  useSwipe({ onLeft: goNext, onRight: goPrev })
+
+  if (!animal) return null
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}>
+      <AnimalStage
+        ref={stageRef}
+        animal={animal}
+        index={currentIndex}
+        total={filtered.length}
+        onPrev={goPrev}
+        onNext={goNext}
+        muted={settings.volume === 0}
+        volume={settings.volume / 100}
+        transitionType={settings.transitionType}
+        playAllVariants={settings.playAllVariants}
+      />
+      <CategoryBar
+        categories={categories}
+        activeId={activeCategory}
+        onChange={setActiveCategory}
+        allCategoryIds={allCategoryIds}
+        showSilent={settings.showSilent}
+      />
+    </div>
+  )
+}
+========== src\store\useSettings.ts ==========
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+export type TransitionType = 'simple' | 'smooth' | 'none'
+export type ThemeMode = 'light' | 'dark' | 'auto'
+export type AccentColor = 'red' | 'orange' | 'amber' | 'green' | 'teal' | 'blue' | 'indigo' | 'purple' | 'pink'
+
+interface SettingsState {
+  autoplay: boolean
+  autoplayDelay: number
+  volume: number
+  autoNext: boolean
+  autoNextInterval: number
+  loopNavigation: boolean
+  theme: ThemeMode
+  accentColor: AccentColor
+  showSilent: boolean
+    playAllVariants: boolean
+  transitionType: TransitionType
+  update: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void
+  reset: () => void
+}
+
+const defaults = {
+  autoplay: true,
+  autoplayDelay: 400,
+  volume: 80,
+  autoNext: false,
+  autoNextInterval: 10,
+  loopNavigation: false,
+  theme: 'auto' as ThemeMode,
+  accentColor: 'red' as AccentColor,
+  showSilent: true,
+  playAllVariants: false,
+  transitionType: 'smooth' as TransitionType,
+}
+
+export const useSettings = create<SettingsState>()(
+  persist(
+    (set) => ({
+      ...defaults,
+      update: (key, value) => set({ [key]: value }),
+      reset: () => set(defaults),
+    }),
+    { name: 'app.settings.v1' }
+  )
+)
+========== src\hooks\useKeyboard.ts ==========
+import { useEffect } from 'react'
+
+interface KeyboardActions {
+  onNext?: () => void
+  onPrev?: () => void
+  onPlay?: () => void
+  onMute?: () => void
+  onSettings?: () => void
+  onFullscreen?: () => void
+  onFirst?: () => void
+  onLast?: () => void
+  onCheatsheet?: () => void
+  onCategory?: (index: number) => void
+  onEscape?: () => void
+}
+
+export function useKeyboard(actions: KeyboardActions) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+
+      const key = e.key
+      const code = e.code
+
+      switch (true) {
+        // РќР°РІРёРіР°С†РёСЏ РІРїРµСЂС‘Рґ: в†’ в†“ D(en) Р’(ru)
+        case key === 'ArrowRight' || key === 'ArrowDown' ||
+             code === 'KeyD':
+          e.preventDefault()
+          actions.onNext?.()
+          break
+
+        // РќР°РІРёРіР°С†РёСЏ РЅР°Р·Р°Рґ: в†ђ в†‘ A(en) Р¤(ru)
+        case key === 'ArrowLeft' || key === 'ArrowUp' ||
+             code === 'KeyA':
+          e.preventDefault()
+          actions.onPrev?.()
+          break
+
+        // Р’РѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ
+        case key === ' ' || key === 'Enter':
+          e.preventDefault()
+          actions.onPlay?.()
+          break
+
+        // Mute: M(en) Р¬(ru)
+        case code === 'KeyM':
+          e.preventDefault()
+          actions.onMute?.()
+          break
+
+        // РќР°СЃС‚СЂРѕР№РєРё: S(en) Р«(ru)
+        case code === 'KeyS':
+          e.preventDefault()
+          actions.onSettings?.()
+          break
+
+        // РџРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№: F(en) Рђ(ru)
+        case code === 'KeyF':
+          e.preventDefault()
+          actions.onFullscreen?.()
+          break
+
+        // РЁРїР°СЂРіР°Р»РєР°: H(en) Р (ru) РёР»Рё ?
+        case code === 'KeyH' || key === '?':
+          e.preventDefault()
+          actions.onCheatsheet?.()
+          break
+
+        case key === 'Home':
+          e.preventDefault()
+          actions.onFirst?.()
+          break
+
+        case key === 'End':
+          e.preventDefault()
+          actions.onLast?.()
+          break
+
+        case key === 'Escape':
+          e.preventDefault()
+          actions.onEscape?.()
+          break
+
+        // Р¦РёС„СЂС‹ 1-9 вЂ” РІС‹Р±РѕСЂ РєР°С‚РµРіРѕСЂРёРё
+        case key >= '1' && key <= '9':
+          e.preventDefault()
+          actions.onCategory?.(parseInt(key) - 1)
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [actions])
+}
+========== src\hooks\useSwipe.ts ==========
+import { useRef, useCallback } from 'react'
+
+interface SwipeActions {
+  onSwipeLeft?: () => void
+  onSwipeRight?: () => void
+}
+
+const MIN_DISTANCE = 50
+
+export function useSwipe(actions: SwipeActions) {
+  const startX = useRef(0)
+  const startY = useRef(0)
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX
+    startY.current = e.touches[0].clientY
+  }, [])
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - startX.current
+    const dy = e.changedTouches[0].clientY - startY.current
+
+    // РЎРІР°Р№Рї С‚РѕР»СЊРєРѕ РµСЃР»Рё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ РґРІРёР¶РµРЅРёРµ Р±РѕР»СЊС€Рµ РІРµСЂС‚РёРєР°Р»СЊРЅРѕРіРѕ
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > MIN_DISTANCE) {
+      if (dx < 0) {
+        actions.onSwipeLeft?.()  // РЎРІР°Р№Рї РІР»РµРІРѕ = СЃР»РµРґСѓСЋС‰РµРµ
+      } else {
+        actions.onSwipeRight?.() // РЎРІР°Р№Рї РІРїСЂР°РІРѕ = РїСЂРµРґС‹РґСѓС‰РµРµ
+      }
+    }
+  }, [actions])
+
+  return { onTouchStart, onTouchEnd }
+}
+========== src\data\types.ts ==========
+export interface Category {
+  id: string
+  name: string
+  emoji: string
+  description: string
+}
+
+export interface Animal {
+  id: string
+  name: string
+  categories: string[]
+  description: string
+  animalClass: string
+  habitat: string
+  photo: string
+  sounds: string[]
+  silent: boolean
+  credit: string
+}
+========== src\data\categories.json ==========
+[
+  {
+    "id": "pets",
+    "name": "РџРёС‚РѕРјС†С‹",
+    "emoji": "рџђ±",
+    "description": "Р”РѕРјР°С€РЅРёРµ Р»СЋР±РёРјС†С‹"
+  },
+  {
+    "id": "farm",
+    "name": "Р¤РµСЂРјР°",
+    "emoji": "рџђ„",
+    "description": "Р”РѕРјР°С€РЅРёРµ Рё С„РµСЂРјРµСЂСЃРєРёРµ Р¶РёРІРѕС‚РЅС‹Рµ"
+  },
+  {
+    "id": "africa",
+    "name": "РЎР°РІР°РЅРЅР°",
+    "emoji": "рџ¦Ѓ",
+    "description": "Р–РёРІРѕС‚РЅС‹Рµ Р°С„СЂРёРєР°РЅСЃРєРѕР№ СЃР°РІР°РЅРЅС‹"
+  },
+  {
+    "id": "forest",
+    "name": "Р›РµСЃ",
+    "emoji": "рџЊІ",
+    "description": "РћР±РёС‚Р°С‚РµР»Рё Р»РµСЃР°"
+  },
+  {
+    "id": "birds",
+    "name": "РџС‚РёС†С‹",
+    "emoji": "рџ¦‰",
+    "description": "РџРµСЂРЅР°С‚С‹Рµ РґСЂСѓР·СЊСЏ"
+  },
+  {
+    "id": "sea",
+    "name": "РњРѕСЂРµ",
+    "emoji": "рџђ¬",
+    "description": "РњРѕСЂСЃРєРёРµ РѕР±РёС‚Р°С‚РµР»Рё"
+  },
+  {
+    "id": "insects",
+    "name": "РќР°СЃРµРєРѕРјС‹Рµ",
+    "emoji": "рџђќ",
+    "description": "РњР°Р»РµРЅСЊРєРёРµ, РЅРѕ РІР°Р¶РЅС‹Рµ"
+  }
+]
+========== src\styles\tokens.css ==========
+/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+   DESIGN TOKENS вЂ” РљС‚Рѕ С‚Р°Рє РіРѕРІРѕСЂРёС‚?
+   HSL S=100% РґР»СЏ Р°РєС†РµРЅС‚РѕРІ (С‡РёСЃС‚С‹Рµ, РЅР°СЃС‹С‰РµРЅРЅС‹Рµ С†РІРµС‚Р°)
+   в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+
+@import "tailwindcss";
+@source inline("flex items-center justify-center flex-col flex-wrap gap-2 gap-3 gap-4 gap-5 gap-6");
+@source "../../**/*.{html,js,jsx,ts,tsx}";
+
+/* в”Ђв”Ђв”Ђ Tailwind v4 Theme в”Ђв”Ђв”Ђ */
+@theme {
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-brand: hsl(10, 100%, 61%);
+  --color-brand-hover: hsl(10, 100%, 64%);
+  --color-brand-active: hsl(10, 100%, 55%);
+
+  --color-bg: #FFFFFF;
+  --color-bg-soft: #F2F6FA;
+  --color-bg-mute: #E8EDF3;
+  --color-bg-dark: #384562;
+
+  --color-text: #3C4760;
+  --color-text-strong: #1F2740;
+  --color-text-muted: rgba(60, 71, 96, .70);
+  --color-text-dim: rgba(60, 71, 96, .45);
+
+  --color-border: rgba(56, 69, 98, .12);
+  --color-border-strong: rgba(56, 69, 98, .22);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 40px;
+  --radius-pill: 999px;
+}
+
+/* в”Ђв”Ђв”Ђ CSS Custom Properties (РґР»СЏ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ) в”Ђв”Ђв”Ђ */
+:root {
+  /* РђРєС†РµРЅС‚ вЂ” РїРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‡РµСЂРµР· [data-accent] */
+  --c-brand: hsl(10, 100%, 61%);
+  --c-brand-hover: hsl(10, 100%, 64%);
+  --c-brand-active: hsl(10, 100%, 55%);
+  --c-brand-soft: hsla(10, 100%, 61%, .08);
+  --c-brand-mid: hsla(10, 100%, 61%, .18);
+  --c-brand-shadow: hsla(10, 100%, 61%, .25);
+
+  /* Р¤РѕРЅ */
+  --c-bg: #FFFFFF;
+  --c-bg-soft: #F2F6FA;
+  --c-bg-mute: #E8EDF3;
+  --c-bg-dark: #384562;
+  --c-bg-dark-hover: #2E3A52;
+
+  /* РўРµРєСЃС‚ */
+  --c-text: #3C4760;
+  --c-text-strong: #1F2740;
+  --c-text-muted: rgba(60, 71, 96, .70);
+  --c-text-dim: rgba(60, 71, 96, .45);
+
+  /* Р“СЂР°РЅРёС†С‹ */
+  --c-border: rgba(56, 69, 98, .12);
+  --c-border-strong: rgba(56, 69, 98, .22);
+
+  /* РўРµРЅРё */
+  --shadow-s: 0 1px 2px rgba(26, 33, 61, .08);
+  --shadow-m: 0 4px 20px rgba(56, 69, 98, .10);
+  --shadow-l: 0 13px 40px rgba(48, 76, 135, .18);
+  --shadow-brand: 0 8px 24px var(--c-brand-shadow);
+
+  /* Р”РІРёР¶РµРЅРёРµ */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-fast: .15s;
+  --dur: .25s;
+  --dur-slow: .4s;
+}
+
+/* в”Ђв”Ђв”Ђ РђРєС†РµРЅС‚РЅС‹Рµ РїР°Р»РёС‚СЂС‹ HSL S=100% в”Ђв”Ђв”Ђ */
+[data-accent="red"]     { --c-brand: hsl(0, 100%, 55%);   --c-brand-hover: hsl(0, 100%, 60%);   --c-brand-active: hsl(0, 100%, 48%);   --c-brand-soft: hsla(0, 100%, 55%, .08);   --c-brand-mid: hsla(0, 100%, 55%, .18);   --c-brand-shadow: hsla(0, 100%, 55%, .30); }
+[data-accent="orange"]  { --c-brand: hsl(25, 100%, 55%);  --c-brand-hover: hsl(25, 100%, 60%);  --c-brand-active: hsl(25, 100%, 48%);  --c-brand-soft: hsla(25, 100%, 55%, .08);  --c-brand-mid: hsla(25, 100%, 55%, .18);  --c-brand-shadow: hsla(25, 100%, 55%, .30); }
+[data-accent="amber"]   { --c-brand: hsl(38, 100%, 50%);  --c-brand-hover: hsl(38, 100%, 55%);  --c-brand-active: hsl(38, 100%, 44%);  --c-brand-soft: hsla(38, 100%, 50%, .08);  --c-brand-mid: hsla(38, 100%, 50%, .18);  --c-brand-shadow: hsla(38, 100%, 50%, .30); }
+[data-accent="green"]   { --c-brand: hsl(145, 100%, 42%); --c-brand-hover: hsl(145, 100%, 47%); --c-brand-active: hsl(145, 100%, 36%); --c-brand-soft: hsla(145, 100%, 42%, .08); --c-brand-mid: hsla(145, 100%, 42%, .18); --c-brand-shadow: hsla(145, 100%, 42%, .30); }
+[data-accent="teal"]    { --c-brand: hsl(175, 100%, 40%); --c-brand-hover: hsl(175, 100%, 45%); --c-brand-active: hsl(175, 100%, 34%); --c-brand-soft: hsla(175, 100%, 40%, .08); --c-brand-mid: hsla(175, 100%, 40%, .18); --c-brand-shadow: hsla(175, 100%, 40%, .30); }
+[data-accent="blue"]    { --c-brand: hsl(215, 100%, 55%); --c-brand-hover: hsl(215, 100%, 60%); --c-brand-active: hsl(215, 100%, 48%); --c-brand-soft: hsla(215, 100%, 55%, .08); --c-brand-mid: hsla(215, 100%, 55%, .18); --c-brand-shadow: hsla(215, 100%, 55%, .30); }
+[data-accent="indigo"]  { --c-brand: hsl(240, 100%, 65%); --c-brand-hover: hsl(240, 100%, 70%); --c-brand-active: hsl(240, 100%, 58%); --c-brand-soft: hsla(240, 100%, 65%, .08); --c-brand-mid: hsla(240, 100%, 65%, .18); --c-brand-shadow: hsla(240, 100%, 65%, .30); }
+[data-accent="purple"]  { --c-brand: hsl(270, 100%, 60%); --c-brand-hover: hsl(270, 100%, 65%); --c-brand-active: hsl(270, 100%, 53%); --c-brand-soft: hsla(270, 100%, 60%, .08); --c-brand-mid: hsla(270, 100%, 60%, .18); --c-brand-shadow: hsla(270, 100%, 60%, .30); }
+[data-accent="pink"]    { --c-brand: hsl(330, 100%, 60%); --c-brand-hover: hsl(330, 100%, 65%); --c-brand-active: hsl(330, 100%, 53%); --c-brand-soft: hsla(330, 100%, 60%, .08); --c-brand-mid: hsla(330, 100%, 60%, .18); --c-brand-shadow: hsla(330, 100%, 60%, .30); }
+
+/* в”Ђв”Ђв”Ђ РўС‘РјРЅР°СЏ С‚РµРјР° в”Ђв”Ђв”Ђ */
+[data-theme="dark"] {
+  --c-bg: #141A28;
+  --c-bg-soft: #1E2638;
+  --c-bg-mute: #262F44;
+  --c-bg-dark: #0A0F1C;
+  --c-bg-dark-hover: #141A28;
+  --c-text: #D8DEEA;
+  --c-text-strong: #FFFFFF;
+  --c-text-muted: rgba(216, 222, 234, .70);
+  --c-text-dim: rgba(216, 222, 234, .40);
+  --c-border: rgba(255, 255, 255, .08);
+  --c-border-strong: rgba(255, 255, 255, .15);
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-m: 0 4px 20px rgba(0, 0, 0, .25);
+  --shadow-l: 0 13px 40px rgba(0, 0, 0, .40);
+}
+========== src\styles\base.css ==========
+/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+   BASE STYLES вЂ” РљС‚Рѕ С‚Р°Рє РіРѕРІРѕСЂРёС‚?
+   в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+
+/* в”Ђв”Ђв”Ђ Reset в”Ђв”Ђв”Ђ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--c-text);
+  background: var(--c-bg-soft);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background var(--dur) var(--ease),
+              color var(--dur) var(--ease);
+}
+
+img, svg, video {
+  max-width: 100%;
+  display: block;
+  border: 0;
+}
+
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure, pre {
+  margin: 0;
+}
+
+/* в”Ђв”Ђв”Ђ Focus в”Ђв”Ђв”Ђ */
+:focus-visible {
+  outline: 2px solid var(--c-brand);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* в”Ђв”Ђв”Ђ Reduced Motion в”Ђв”Ђв”Ђ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* в”Ђв”Ђв”Ђ Scrollbar (С‚РѕРЅРєРёР№, РІ СЃС‚РёР»Рµ macOS) в”Ђв”Ђв”Ђ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-border-strong);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-text-dim);
+}
+
+/* в”Ђв”Ђв”Ђ Selection в”Ђв”Ђв”Ђ */
+::selection {
+  background: var(--c-brand-mid);
+  color: var(--c-text-strong);
+}
+========== src\styles\glass.css ==========
+/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+   GLASS PANELS вЂ” РїСЂРѕСЃС‚РѕРµ Рё РєСЂР°СЃРёРІРѕРµ СЂР°Р·РјС‹С‚РёРµ
+   в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(30, 38, 56, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}

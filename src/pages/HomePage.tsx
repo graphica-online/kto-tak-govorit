@@ -6,12 +6,9 @@ import { useKeyboard } from '../hooks/useKeyboard'
 import { useSwipe } from '../hooks/useSwipe'
 import { useSettings } from '../store/useSettings'
 import animalsData from '../data/animals.json'
-import categoriesData from '../data/categories.json'
 import type { Animal } from '../data/types'
 
 const animals: Animal[] = animalsData
-const categories = categoriesData as { id: string; name: string; emoji: string }[]
-const allCategoryIds = ['all', ...categories.map(c => c.id)]
 
 function shuffleArray<T>(arr: T[]): T[] {
   const result = [...arr]
@@ -87,9 +84,9 @@ export default function HomePage() {
     stageRef.current?.playSound()
   }, [])
 
-  /* Автоплей — звук */
+  /* Автоплей — звук при смене животного */
   useEffect(() => {
-    if (!autoplayActive || !settings.autoplay) return
+    if (!autoplayActive) return
     const timer = setTimeout(() => {
       if (!isPlayingRef.current && stageRef.current) {
         isPlayingRef.current = true
@@ -98,17 +95,18 @@ export default function HomePage() {
       }
     }, settings.autoplayDelay)
     return () => clearTimeout(timer)
-  }, [animal?.id, autoplayActive, settings.autoplay, settings.autoplayDelay])
+  }, [animal?.id, autoplayActive, settings.autoplayDelay])
 
-  /* Авто-переход к следующему */
+  /* Автопереход — смена карточки (интервал в СЕКУНДАХ → *1000) */
   useEffect(() => {
     if (!settings.autoNext || !autoplayActive) return
     if (filtered.length <= 1) return
-    const timer = setInterval(goNext, settings.autoNextInterval)
+    const ms = settings.autoNextInterval * 1000
+    const timer = setInterval(goNext, ms)
     return () => clearInterval(timer)
   }, [settings.autoNext, settings.autoNextInterval, filtered.length, autoplayActive, goNext])
 
-  /* Клавиатура — правильные имена колбэков */
+  /* Клавиатура */
   useKeyboard({
     onNext: goNext,
     onPrev: goPrev,
@@ -119,6 +117,7 @@ export default function HomePage() {
     onMute: () => settings.update('volume', settings.volume === 0 ? 80 : 0),
   })
 
+  /* Свайпы — теперь работает через document */
   useSwipe({ onLeft: goNext, onRight: goPrev })
 
   if (!animal) return null
@@ -138,11 +137,8 @@ export default function HomePage() {
         playAllVariants={settings.playAllVariants}
       />
       <CategoryBar
-        categories={categories}
-        activeId={activeCategory}
+        active={activeCategory}
         onChange={setActiveCategory}
-        allCategoryIds={allCategoryIds}
-        showSilent={settings.showSilent}
       />
     </div>
   )
