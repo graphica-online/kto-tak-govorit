@@ -37,8 +37,8 @@ export default function HomePage() {
   const {
     toggleCheatsheet, closeCheatsheet,
     toggleSettings, closeSettings,
-    shuffleActive, toggleShuffle,
-    autoplayActive, toggleAutoplay,
+    shuffleActive,
+    autoplayActive,
   } = useOutletContext<OutletCtx>()
 
   const settings = useSettings()
@@ -49,27 +49,22 @@ export default function HomePage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [shuffleSeed, setShuffleSeed] = useState(0)
 
-  /* Фильтрация по категории */
   const baseFiltered = useMemo(() => {
     if (activeCategory === 'all') return animals
-    return animals.filter(a => a.category === activeCategory)
+    return animals.filter(a => a.categories.includes(activeCategory))
   }, [activeCategory])
 
-  /* Перемешивание */
   const filtered = useMemo(() => {
     if (!shuffleActive) return baseFiltered
     return shuffleArray(baseFiltered)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseFiltered, shuffleActive, toggleShuffle, shuffleSeed])
+  }, [baseFiltered, shuffleActive, shuffleSeed])
 
   const animal = filtered[currentIndex] ?? filtered[0] ?? animals[0]
 
-  /* Сброс индекса при смене категории или shuffle */
   useEffect(() => {
     setCurrentIndex(0)
-  }, [activeCategory, shuffleActive, toggleShuffle, shuffleSeed])
+  }, [activeCategory, shuffleActive, shuffleSeed])
 
-  /* Навигация */
   const goNext = useCallback(() => {
     setCurrentIndex(i => {
       if (i >= filtered.length - 1) {
@@ -88,24 +83,22 @@ export default function HomePage() {
     })
   }, [filtered.length, settings.loopNavigation])
 
+  const playSound = useCallback(() => {
+    stageRef.current?.playSound()
+  }, [])
+
   /* Автоплей — звук */
   useEffect(() => {
     if (!autoplayActive || !settings.autoplay) return
     const timer = setTimeout(() => {
       if (!isPlayingRef.current && stageRef.current) {
         isPlayingRef.current = true
-        stageRef.current.play().finally(() => {
-          isPlayingRef.current = false
-        })
+        stageRef.current.playSound()
+        setTimeout(() => { isPlayingRef.current = false }, 2000)
       }
     }, settings.autoplayDelay)
     return () => clearTimeout(timer)
-  }, [animal.id, autoplayActive, toggleAutoplay, settings.autoplay, settings.autoplayDelay])
-
-  /* Смена shuffle seed при переключении */
-  useEffect(() => {
-    if (shuffleActive) setShuffleSeed(s => s + 1)
-  }, [shuffleActive])
+  }, [animal?.id, autoplayActive, settings.autoplay, settings.autoplayDelay])
 
   /* Авто-переход к следующему */
   useEffect(() => {
@@ -115,18 +108,17 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [settings.autoNext, settings.autoNextInterval, filtered.length, autoplayActive, goNext])
 
-  /* Клавиатура */
+  /* Клавиатура — правильные имена колбэков */
   useKeyboard({
-    onLeft: goPrev,
-    onRight: goNext,
-    onSpace: () => stageRef.current?.play(),
-    onQuestion: toggleCheatsheet,
+    onNext: goNext,
+    onPrev: goPrev,
+    onPlay: playSound,
+    onCheatsheet: toggleCheatsheet,
     onEscape: closeCheatsheet,
-    onKeyS: toggleSettings,
-    onKeyM: () => settings.update('volume', settings.volume === 0 ? 80 : 0),
+    onSettings: toggleSettings,
+    onMute: () => settings.update('volume', settings.volume === 0 ? 80 : 0),
   })
 
-  /* Свайпы */
   useSwipe({ onLeft: goNext, onRight: goPrev })
 
   if (!animal) return null
@@ -136,10 +128,14 @@ export default function HomePage() {
       <AnimalStage
         ref={stageRef}
         animal={animal}
-        onNext={goNext}
-        onPrev={goPrev}
-        currentIndex={currentIndex}
+        index={currentIndex}
         total={filtered.length}
+        onPrev={goPrev}
+        onNext={goNext}
+        muted={settings.volume === 0}
+        volume={settings.volume / 100}
+        transitionType={settings.transitionType}
+        playAllVariants={settings.playAllVariants}
       />
       <CategoryBar
         categories={categories}
