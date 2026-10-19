@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hero Concepts — Кто так говорит?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS (из утверждённого UI-kit) ═══ */
+:root {
+  --c-brand: #FF5739;
+  --c-brand-hover: #FF6246;
+  --c-brand-active: #E84A2F;
+  --c-brand-soft: rgba(255,87,57,.08);
+  --c-brand-mid: rgba(255,87,57,.18);
+  --c-brand-shadow: rgba(255,87,57,.25);
+  --c-bg: #FFFFFF;
+  --c-bg-soft: #F2F6FA;
+  --c-bg-mute: #E8EDF3;
+  --c-bg-dark: #384562;
+  --c-text: #3C4760;
+  --c-text-strong: #1F2740;
+  --c-text-muted: rgba(60,71,96,.70);
+  --c-text-dim: rgba(60,71,96,.45);
+  --c-border: rgba(56,69,98,.12);
+  --c-border-strong: rgba(56,69,98,.22);
+  --shadow-s: 0 1px 2px rgba(26,33,61,.08);
+  --shadow-m: 0 4px 20px rgba(56,69,98,.10);
+  --shadow-l: 0 13px 40px rgba(48,76,135,.18);
+  --shadow-brand: 0 8px 24px var(--c-brand-shadow);
+  --r-xs:6px; --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:28px; --r-2xl:40px; --r-pill:999px;
+  --font: 'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+  --fs-xs:13px; --fs-s:15px; --fs-m:17px; --fs-l:22px; --fs-xl:28px; --fs-2xl:42px; --fs-3xl:56px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --dur-fast: .15s;
+  --dur: .25s;
+}
+
+[data-accent="coral"]  { --c-brand:#FF5739; --c-brand-hover:#FF6246; --c-brand-active:#E84A2F; --c-brand-soft:rgba(255,87,57,.08); --c-brand-mid:rgba(255,87,57,.18); --c-brand-shadow:rgba(255,87,57,.25); }
+[data-accent="blue"]   { --c-brand:#2383E2; --c-brand-hover:#3691EB; --c-brand-active:#1B6EC2; --c-brand-soft:rgba(35,131,226,.08); --c-brand-mid:rgba(35,131,226,.18); --c-brand-shadow:rgba(35,131,226,.25); }
+[data-accent="purple"] { --c-brand:#7C3AED; --c-brand-hover:#8E52F0; --c-brand-active:#6025C0; --c-brand-soft:rgba(124,58,237,.08); --c-brand-mid:rgba(124,58,237,.18); --c-brand-shadow:rgba(124,58,237,.25); }
+
+[data-theme="dark"] {
+  --c-bg: #141A28;
+  --c-bg-soft: #1E2638;
+  --c-bg-mute: #262F44;
+  --c-bg-dark: #0A0F1C;
+  --c-text: #D8DEEA;
+  --c-text-strong: #FFFFFF;
+  --c-text-muted: rgba(216,222,234,.70);
+  --c-text-dim: rgba(216,222,234,.40);
+  --c-border: rgba(255,255,255,.08);
+  --c-border-strong: rgba(255,255,255,.15);
+  --shadow-m: 0 4px 20px rgba(0,0,0,.25);
+  --shadow-l: 0 13px 40px rgba(0,0,0,.40);
+}
+
+/* ═══ RESET ═══ */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font);font-size:var(--fs-s);line-height:1.5;color:var(--c-text);background:var(--c-bg-soft);-webkit-font-smoothing:antialiased;transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+img{max-width:100%;display:block}
+
+/* ═══ TOP NAV ═══ */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--c-border);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+[data-theme="dark"] .topnav{background:rgba(20,26,40,.88)}
+.topnav h1{font-size:var(--fs-s);font-weight:700;margin-right:auto}
+.tab{padding:7px 14px;border:1px solid var(--c-border);border-radius:var(--r-pill);font-size:12px;font-weight:600;color:var(--c-text-muted);transition:all var(--dur-fast) var(--ease)}
+.tab:hover{color:var(--c-text-strong);border-color:var(--c-border-strong)}
+.tab.active{background:var(--c-brand);color:#fff;border-color:var(--c-brand)}
+.pal{display:flex;gap:6px}
+.pal__d{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform var(--dur-fast) var(--ease)}
+.pal__d:hover{transform:scale(1.2)}
+.pal__d.on{border-color:var(--c-text-strong);box-shadow:0 0 0 2px var(--c-bg)}
+.tgl{width:36px;height:36px;border-radius:var(--r-s);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--c-text-muted);transition:background var(--dur-fast) var(--ease)}
+.tgl:hover{background:var(--c-bg-mute)}
+
+/* ═══ CONCEPT CONTAINER ═══ */
+.concept{display:none;width:100%;margin-top:60px}
+.concept.on{display:block}
+.concept-title{text-align:center;padding:32px 20px 16px}
+.concept-title h2{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;color:var(--c-text-strong)}
+.concept-title p{font-size:var(--fs-s);color:var(--c-text-muted);margin-top:6px}
+.concept-title .refs{font-size:12px;color:var(--c-text-dim);margin-top:4px}
+.concept-title .refs b{color:var(--c-text-muted)}
+
+/* ═══ SHARED ═══ */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;font-weight:600;border-radius:var(--r-pill);background:var(--c-brand-soft);color:var(--c-brand);white-space:nowrap}
+.badge--neutral{background:var(--c-bg-mute);color:var(--c-text-muted)}
+
+.play-btn{
+  --sz:72px;
+  width:var(--sz);height:var(--sz);border-radius:50%;
+  background:var(--c-brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:var(--shadow-brand);
+  transition:all var(--dur) var(--ease);position:relative;flex-shrink:0;
+}
+.play-btn:hover{transform:scale(1.08);background:var(--c-brand-hover)}
+.play-btn:active{transform:scale(.96)}
+.play-btn.is-playing::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--c-brand);opacity:.5;animation:pulse 1.5s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.95);opacity:.5}100%{transform:scale(1.3);opacity:0}}
+
+.nav-circle{
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  transition:all var(--dur-fast) var(--ease);flex-shrink:0;
+}
+
+.bubble-bar{display:flex;gap:6px;flex-wrap:wrap}
+.bub{padding:8px 16px;font-size:13px;font-weight:600;border-radius:var(--r-pill);white-space:nowrap;transition:all var(--dur) var(--ease)}
+
+/* Progress bar */
+.progress-bar{height:3px;background:var(--c-bg-mute);border-radius:2px;overflow:hidden;width:100%}
+.progress-bar__fill{height:100%;background:var(--c-brand);border-radius:2px;width:33%;transition:width .4s var(--ease)}
+
+/* counter text */
+.counter{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--c-text-dim)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT 1: PHOTO + SIDEBAR (DeepSeek / ChatGPT style)
+   ═══════════════════════════════════════════════════════════════ */
+.c1{display:none;height:calc(100vh - 60px);overflow:hidden}
+.c1.on{display:flex}
+
+.c1-sidebar{
+  width:320px;flex-shrink:0;
+  background:var(--c-bg);
+  border-right:1px solid var(--c-border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.c1-sidebar__head{padding:20px;border-bottom:1px solid var(--c-border);display:flex;align-items:center;gap:10px}
+.c1-sidebar__title{font-size:var(--fs-m);font-weight:700;color:var(--c-text-strong);flex:1}
+.c1-sidebar__cats{padding:16px 20px;border-bottom:1px solid var(--c-border)}
+.c1-sidebar__cats .bubble-bar{gap:6px}
+.c1-sidebar__cats .bub{background:var(--c-bg-soft);color:var(--c-text-muted);border:1px solid var(--c-border)}
+.c1-sidebar__cats .bub:hover{border-color:var(--c-brand);color:var(--c-brand)}
+.c1-sidebar__cats .bub.on{background:var(--c-brand);color:#fff;border-color:var(--c-brand)}
+
+.c1-sidebar__info{flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:16px}
+.c1-sidebar__name{font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.03em;color:var(--c-text-strong);line-height:1}
+.c1-sidebar__desc{font-size:var(--fs-s);color:var(--c-text-muted);line-height:1.6}
+.c1-sidebar__meta{display:flex;flex-direction:column;gap:8px}
+.c1-meta-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--c-border)}
+.c1-meta-row:last-child{border:0}
+.c1-meta-row .label{color:var(--c-text-dim)}
+.c1-meta-row .val{font-weight:600;color:var(--c-text-strong)}
+
+.c1-sidebar__controls{padding:20px;border-top:1px solid var(--c-border);display:flex;flex-direction:column;gap:12px}
+.c1-sidebar__play-row{display:flex;align-items:center;gap:12px}
+.c1-sidebar__play-row .play-btn{--sz:56px;font-size:22px}
+.c1-sidebar__play-row .play-label{font-size:var(--fs-s);font-weight:600;color:var(--c-text-strong)}
+.c1-sidebar__play-row .play-hint{font-size:12px;color:var(--c-text-dim)}
+.c1-sidebar__nav{display:flex;align-items:center;gap:8px}
+.c1-sidebar__nav .nav-circle{background:var(--c-bg-soft);color:var(--c-text-strong);border:1px solid var(--c-border)}
+.c1-sidebar__nav .nav-circle:hover{border-color:var(--c-brand);color:var(--c-brand)}
+.c1-sidebar__nav .counter{margin-left:auto}
+.c1-sidebar__progress{display:flex;flex-direction:column;gap:6px}
+
+.c1-photo{flex:1;position:relative;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.c1-photo__img{width:100%;height:100%;object-fit:cover}
+.c1-photo__emoji{font-size:min(40vw,400px);filter:drop-shadow(0 10px 30px rgba(0,0,0,.3))}
+.c1-photo__overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,transparent 20%,transparent 80%,rgba(0,0,0,.25) 100%);pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT 2: FULLSCREEN + BOTTOM BAR (Apple TV / Netflix)
+   ═══════════════════════════════════════════════════════════════ */
+.c2{display:none;height:calc(100vh - 60px);position:relative;overflow:hidden;background:#000}
+.c2.on{display:block}
+
+.c2-photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.c2-photo__emoji{font-size:min(45vw,500px);filter:drop-shadow(0 10px 40px rgba(0,0,0,.4))}
+.c2-photo__grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,transparent 25%,transparent 55%,rgba(0,0,0,.85) 100%);pointer-events:none}
+
+.c2-top{position:absolute;top:0;left:0;right:0;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+.c2-top .bubble-bar .bub{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(20px)}
+.c2-top .bubble-bar .bub:hover{background:rgba(255,255,255,.2);color:#fff}
+.c2-top .bubble-bar .bub.on{background:var(--c-brand);color:#fff;border-color:var(--c-brand)}
+.c2-top .tgl{color:rgba(255,255,255,.6)}
+.c2-top .tgl:hover{background:rgba(255,255,255,.1);color:#fff}
+
+.c2-bottom{position:absolute;bottom:0;left:0;right:0;padding:32px 40px 40px;z-index:2;display:flex;align-items:flex-end;gap:32px}
+.c2-bottom__info{flex:1}
+.c2-bottom__badges{display:flex;gap:6px;margin-bottom:12px}
+.c2-bottom__badges .badge{background:rgba(255,255,255,.15);color:#fff;backdrop-filter:blur(10px)}
+.c2-bottom__name{font-size:clamp(40px,8vw,72px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:.95;margin-bottom:8px}
+.c2-bottom__desc{font-size:var(--fs-m);color:rgba(255,255,255,.7);line-height:1.5;max-width:500px}
+.c2-bottom__controls{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.c2-bottom__controls .nav-circle{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(20px)}
+.c2-bottom__controls .nav-circle:hover{background:rgba(255,255,255,.25)}
+.c2-bottom__controls .counter{color:rgba(255,255,255,.5)}
+
+.c2-progress{position:absolute;bottom:0;left:0;right:0;z-index:3}
+.c2-progress .progress-bar{border-radius:0;height:4px;background:rgba(255,255,255,.15)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT 3: FULLSCREEN + FLOATING GLASS PANEL (Figma / Linear)
+   ═══════════════════════════════════════════════════════════════ */
+.c3{display:none;height:calc(100vh - 60px);position:relative;overflow:hidden;background:#0a0a0a}
+.c3.on{display:block}
+
+.c3-photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.c3-photo__emoji{font-size:min(45vw,500px);filter:drop-shadow(0 10px 40px rgba(0,0,0,.4))}
+.c3-photo__overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,.1) 0%,rgba(0,0,0,.6) 100%);pointer-events:none}
+
+.c3-top{position:absolute;top:20px;left:24px;display:flex;align-items:center;gap:8px;z-index:2}
+.c3-top .bubble-bar .bub{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px)}
+.c3-top .bubble-bar .bub:hover{background:rgba(255,255,255,.15);color:#fff}
+.c3-top .bubble-bar .bub.on{background:var(--c-brand);color:#fff;border-color:var(--c-brand)}
+
+.c3-panel{
+  position:absolute;
+  top:50%;right:32px;transform:translateY(-50%);
+  width:340px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--r-xl);
+  padding:28px;
+  z-index:2;
+  color:#fff;
+  display:flex;flex-direction:column;gap:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.c3-panel__badges{display:flex;gap:6px}
+.c3-panel__badges .badge{background:rgba(255,255,255,.12);color:#fff}
+.c3-panel__name{font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.03em;line-height:1}
+.c3-panel__desc{font-size:var(--fs-s);color:rgba(255,255,255,.65);line-height:1.6}
+.c3-panel__meta{display:flex;flex-direction:column;gap:6px}
+.c3-panel__meta-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.c3-panel__meta-row:last-child{border:0}
+.c3-panel__meta-row .label{color:rgba(255,255,255,.4)}
+.c3-panel__meta-row .val{font-weight:600}
+.c3-panel__controls{display:flex;align-items:center;gap:10px;margin-top:4px}
+.c3-panel__controls .play-btn{--sz:56px;font-size:22px}
+.c3-panel__controls .nav-circle{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.c3-panel__controls .nav-circle:hover{background:rgba(255,255,255,.2)}
+.c3-panel__controls .counter{margin-left:auto;color:rgba(255,255,255,.4)}
+.c3-panel__progress{margin-top:4px}
+.c3-panel__progress .progress-bar{background:rgba(255,255,255,.1)}
+
+.c3-nav-hint{position:absolute;top:50%;z-index:1;color:rgba(255,255,255,.15);font-size:48px;transform:translateY(-50%);pointer-events:none}
+.c3-nav-hint--l{left:24px}
+.c3-nav-hint--r{right:388px}
+
+.c3-settings{position:absolute;top:20px;right:24px;z-index:3}
+.c3-settings .tgl{color:rgba(255,255,255,.5);width:40px;height:40px;border-radius:var(--r-pill);background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1)}
+.c3-settings .tgl:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT 4: SPLIT 50/50 DASHBOARD (Arena.ai / Notion)
+   ═══════════════════════════════════════════════════════════════ */
+.c4{display:none;height:calc(100vh - 60px);overflow:hidden}
+.c4.on{display:flex}
+
+.c4-photo-half{flex:1;position:relative;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.c4-photo-half__emoji{font-size:min(30vw,350px);filter:drop-shadow(0 10px 30px rgba(0,0,0,.3))}
+.c4-photo-half__overlay{position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,rgba(0,0,0,.3) 100%);pointer-events:none}
+.c4-photo-half__counter{position:absolute;top:20px;left:20px;padding:8px 14px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);border-radius:var(--r-pill);font-size:13px;font-weight:600;color:#fff}
+.c4-photo-half__nav{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.c4-photo-half__nav .nav-circle{background:rgba(255,255,255,.15);color:#fff;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15)}
+.c4-photo-half__nav .nav-circle:hover{background:rgba(255,255,255,.3)}
+
+.c4-dash{
+  width:50%;flex-shrink:0;max-width:560px;
+  background:var(--c-bg);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.c4-dash__top{padding:20px 28px;border-bottom:1px solid var(--c-border);display:flex;align-items:center;gap:8px}
+.c4-dash__logo{font-size:var(--fs-s);font-weight:700;color:var(--c-text-strong);flex:1}
+.c4-dash__logo span{color:var(--c-brand)}
+.c4-dash__cats{padding:16px 28px;border-bottom:1px solid var(--c-border)}
+.c4-dash__cats .bubble-bar{gap:6px}
+.c4-dash__cats .bub{background:var(--c-bg-soft);color:var(--c-text-muted);border:1px solid var(--c-border)}
+.c4-dash__cats .bub:hover{border-color:var(--c-brand);color:var(--c-brand)}
+.c4-dash__cats .bub.on{background:var(--c-brand);color:#fff;border-color:var(--c-brand)}
+
+.c4-dash__body{flex:1;padding:28px;display:flex;flex-direction:column;gap:24px}
+.c4-dash__name{font-size:var(--fs-3xl);font-weight:800;letter-spacing:-.03em;color:var(--c-text-strong);line-height:1}
+.c4-dash__desc{font-size:var(--fs-m);color:var(--c-text-muted);line-height:1.6;max-width:420px}
+
+.c4-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.c4-stat{padding:16px;background:var(--c-bg-soft);border-radius:var(--r-m);text-align:center}
+.c4-stat__val{font-size:var(--fs-xl);font-weight:800;color:var(--c-text-strong)}
+.c4-stat__label{font-size:12px;color:var(--c-text-dim);margin-top:2px}
+
+.c4-dash__play-section{display:flex;align-items:center;gap:16px;padding:20px;background:var(--c-bg-soft);border-radius:var(--r-l)}
+.c4-dash__play-section .play-btn{--sz:64px;font-size:24px}
+.c4-dash__play-label{flex:1}
+.c4-dash__play-label .title{font-size:var(--fs-m);font-weight:700;color:var(--c-text-strong)}
+.c4-dash__play-label .hint{font-size:13px;color:var(--c-text-dim);margin-top:2px}
+
+.c4-dash__progress{padding:0}
+.c4-dash__keys{display:flex;gap:6px;flex-wrap:wrap}
+.c4-key{padding:4px 10px;background:var(--c-bg-mute);border-radius:var(--r-xs);font-size:12px;font-weight:600;color:var(--c-text-dim);font-family:var(--font)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT 5: FULLSCREEN + MINIMAL HUD (Instagram / VSCO)
+   ═══════════════════════════════════════════════════════════════ */
+.c5{display:none;height:calc(100vh - 60px);position:relative;overflow:hidden;background:#000}
+.c5.on{display:block}
+
+.c5-photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.c5-photo__emoji{font-size:min(50vw,550px);filter:drop-shadow(0 10px 40px rgba(0,0,0,.4))}
+.c5-photo__grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 15%,transparent 85%,rgba(0,0,0,.5) 100%);pointer-events:none}
+
+.c5-top-bar{position:absolute;top:0;left:0;right:0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.c5-top-bar__left{display:flex;align-items:center;gap:8px}
+.c5-top-bar__cat{padding:6px 14px;background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:var(--r-pill);font-size:13px;font-weight:600;color:#fff;border:1px solid rgba(255,255,255,.15)}
+.c5-top-bar__right{display:flex;gap:6px}
+.c5-top-bar__right .tgl{color:rgba(255,255,255,.6);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);backdrop-filter:blur(10px)}
+.c5-top-bar__right .tgl:hover{background:rgba(255,255,255,.15);color:#fff}
+
+.c5-center{position:absolute;bottom:40%;left:50%;transform:translateX(-50%);z-index:2;text-align:center}
+.c5-center__name{font-size:clamp(48px,10vw,96px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:.9;text-shadow:0 4px 30px rgba(0,0,0,.5)}
+.c5-center__sub{font-size:var(--fs-s);color:rgba(255,255,255,.6);margin-top:8px}
+
+.c5-bottom-controls{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:2;display:flex;align-items:center;gap:16px}
+.c5-bottom-controls .nav-circle{width:52px;height:52px;background:rgba(255,255,255,.1);color:#fff;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);font-size:22px}
+.c5-bottom-controls .nav-circle:hover{background:rgba(255,255,255,.2)}
+.c5-bottom-controls .play-btn{--sz:80px;font-size:30px}
+.c5-bottom-controls .counter{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.35);font-size:12px;font-weight:600;white-space:nowrap}
+
+.c5-dot-nav{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:2;display:flex;gap:6px}
+.c5-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+.c5-dot.on{width:20px;border-radius:3px;background:#fff}
+
+/* ═══ SUMMARY ═══ */
+.summary{display:none;padding:80px 20px}
+.summary.on{display:block}
+.summary__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:1200px;margin:0 auto}
+.summary__card{padding:24px;background:var(--c-bg);border-radius:var(--r-xl);border:1px solid var(--c-border)}
+.summary__card .n{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--c-text-dim)}
+.summary__card h4{font-size:var(--fs-l);font-weight:700;margin:8px 0 10px;color:var(--c-text-strong)}
+.summary__card .desc{font-size:13px;color:var(--c-text-muted);line-height:1.6;margin-bottom:14px}
+.summary__card .pro,.summary__card .con{font-size:12px;margin-bottom:4px;line-height:1.5}
+.summary__card .pro{color:var(--c-brand)}
+.summary__card .con{color:var(--c-text-dim)}
+.summary__rec{max-width:1200px;margin:24px auto 0;padding:24px;background:var(--c-brand-soft);border:1px solid var(--c-brand-mid);border-radius:var(--r-xl);font-size:14px;line-height:1.7;color:var(--c-text)}
+.summary__rec b{color:var(--c-brand)}
+
+@media(max-width:900px){
+  .c1-sidebar{width:280px}
+  .c4-dash{width:45%}
+}
+@media(max-width:700px){
+  .c1{flex-direction:column;height:auto;min-height:100vh}
+  .c1-sidebar{width:100%;border-right:0;border-bottom:1px solid var(--c-border)}
+  .c1-photo{min-height:50vh}
+  .c4{flex-direction:column;height:auto;min-height:100vh}
+  .c4-photo-half{min-height:45vh}
+  .c4-dash{width:100%;max-width:none}
+  .c3-panel{position:static;transform:none;width:100%;margin:auto 16px 16px;max-width:none}
+  .c3{height:auto;min-height:100vh;display:none;flex-direction:column}
+  .c3.on{display:flex}
+  .c3-photo{position:relative;min-height:55vh}
+}
+</style>
+</head>
+
+<body data-accent="coral">
+
+<nav class="topnav">
+  <h1>🐾 Hero Concepts</h1>
+  <button class="tab active" onclick="show(1)">1 · Sidebar</button>
+  <button class="tab" onclick="show(2)">2 · Bottom</button>
+  <button class="tab" onclick="show(3)">3 · Glass</button>
+  <button class="tab" onclick="show(4)">4 · Split</button>
+  <button class="tab" onclick="show(5)">5 · HUD</button>
+  <button class="tab" onclick="show(0)">📊</button>
+  <div class="pal" id="pal">
+    <div class="pal__d on" data-a="coral" style="background:#FF5739"></div>
+    <div class="pal__d" data-a="blue" style="background:#2383E2"></div>
+    <div class="pal__d" data-a="purple" style="background:#7C3AED"></div>
+  </div>
+  <button class="tgl" id="tBtn">🌙</button>
+</nav>
+
+<!-- ═══ CONCEPT 1: SIDEBAR ═══ -->
+<div class="concept c1 on" id="c1">
+  <aside class="c1-sidebar">
+    <div class="c1-sidebar__head">
+      <div class="c1-sidebar__title">🐾 Голоса</div>
+      <button class="tgl" title="Настройки">⚙</button>
+    </div>
+    <div class="c1-sidebar__cats">
+      <div class="bubble-bar">
+        <button class="bub">🎲 Все</button>
+        <button class="bub on">🦁 Саванна</button>
+        <button class="bub">🐄 Ферма</button>
+        <button class="bub">🌲 Лес</button>
+        <button class="bub">🐱 Питомцы</button>
+        <button class="bub">🦉 Птицы</button>
+        <button class="bub">🐬 Море</button>
+      </div>
+    </div>
+    <div class="c1-sidebar__info">
+      <div>
+        <span class="badge">Млекопитающее</span>
+      </div>
+      <h2 class="c1-sidebar__name">Лев</h2>
+      <p class="c1-sidebar__desc">Крупный хищник семейства кошачьих. Его рык слышен за восемь километров по саванне.</p>
+      <div class="c1-sidebar__meta">
+        <div class="c1-meta-row"><span class="label">Класс</span><span class="val">Млекопитающее</span></div>
+        <div class="c1-meta-row"><span class="label">Среда</span><span class="val">Саванна</span></div>
+        <div class="c1-meta-row"><span class="label">Звук</span><span class="val">Рык</span></div>
+        <div class="c1-meta-row"><span class="label">Вариаций</span><span class="val">3</span></div>
+      </div>
+    </div>
+    <div class="c1-sidebar__controls">
+      <div class="c1-sidebar__play-row">
+        <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Play">▶</button>
+        <div><div class="play-label">Послушать</div><div class="play-hint">Space · Enter</div></div>
+      </div>
+      <div class="c1-sidebar__nav">
+        <button class="nav-circle" aria-label="Назад">‹</button>
+        <button class="nav-circle" aria-label="Вперёд">›</button>
+        <span class="counter">03 / 09</span>
+      </div>
+      <div class="c1-sidebar__progress">
+        <div class="progress-bar"><div class="progress-bar__fill" style="width:33%"></div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="c1-photo">
+    <div class="c1-photo__emoji">🦁</div>
+    <div class="c1-photo__overlay"></div>
+  </div>
+</div>
+
+<!-- ═══ CONCEPT 2: BOTTOM BAR ═══ -->
+<div class="concept c2" id="c2">
+  <div class="c2-photo">
+    <div class="c2-photo__emoji">🦁</div>
+    <div class="c2-photo__grad"></div>
+  </div>
+  <div class="c2-top">
+    <div class="bubble-bar">
+      <button class="bub">🎲 Все</button>
+      <button class="bub on">🦁 Саванна</button>
+      <button class="bub">🐄 Ферма</button>
+      <button class="bub">🌲 Лес</button>
+    </div>
+    <button class="tgl" title="Настройки">⚙</button>
+  </div>
+  <div class="c2-bottom">
+    <div class="c2-bottom__info">
+      <div class="c2-bottom__badges"><span class="badge">Млекопитающее</span><span class="badge">Хищник</span></div>
+      <h2 class="c2-bottom__name">Лев</h2>
+      <p class="c2-bottom__desc">Крупный хищник семейства кошачьих. Его рык слышен за восемь километров.</p>
+    </div>
+    <div class="c2-bottom__controls">
+      <button class="nav-circle" aria-label="Назад">‹</button>
+      <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Play">▶</button>
+      <button class="nav-circle" aria-label="Вперёд">›</button>
+      <span class="counter" style="position:absolute;bottom:-24px;right:0;color:rgba(255,255,255,.4)">03 / 09</span>
+    </div>
+  </div>
+  <div class="c2-progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:33%"></div></div></div>
+</div>
+
+<!-- ═══ CONCEPT 3: GLASS PANEL ═══ -->
+<div class="concept c3" id="c3">
+  <div class="c3-photo">
+    <div class="c3-photo__emoji">🦁</div>
+    <div class="c3-photo__overlay"></div>
+  </div>
+  <div class="c3-top">
+    <div class="bubble-bar">
+      <button class="bub on">🦁 Саванна</button>
+      <button class="bub">🐄 Ферма</button>
+      <button class="bub">🌲 Лес</button>
+    </div>
+  </div>
+  <div class="c3-settings"><button class="tgl">⚙</button></div>
+  <div class="c3-nav-hint c3-nav-hint--l">‹</div>
+  <div class="c3-nav-hint c3-nav-hint--r">›</div>
+  <div class="c3-panel">
+    <div class="c3-panel__badges"><span class="badge">Млекопитающее</span></div>
+    <h2 class="c3-panel__name">Лев</h2>
+    <p class="c3-panel__desc">Крупный хищник семейства кошачьих. Его рык слышен за восемь километров.</p>
+    <div class="c3-panel__meta">
+      <div class="c3-panel__meta-row"><span class="label">Среда</span><span class="val">Саванна</span></div>
+      <div class="c3-panel__meta-row"><span class="label">Звук</span><span class="val">Рык · 3 вариации</span></div>
+    </div>
+    <div class="c3-panel__controls">
+      <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Play">▶</button>
+      <button class="nav-circle" aria-label="Назад">‹</button>
+      <button class="nav-circle" aria-label="Вперёд">›</button>
+      <span class="counter">03 / 09</span>
+    </div>
+    <div class="c3-panel__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:33%"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ CONCEPT 4: SPLIT DASHBOARD ═══ -->
+<div class="concept c4" id="c4">
+  <div class="c4-photo-half">
+    <div class="c4-photo-half__emoji">🦁</div>
+    <div class="c4-photo-half__overlay"></div>
+    <div class="c4-photo-half__counter">03 / 09</div>
+    <div class="c4-photo-half__nav">
+      <button class="nav-circle" aria-label="Назад">‹</button>
+      <button class="nav-circle" aria-label="Вперёд">›</button>
+    </div>
+  </div>
+  <div class="c4-dash">
+    <div class="c4-dash__top">
+      <div class="c4-dash__logo">🐾 Голоса<span>.</span></div>
+      <button class="tgl">⚙</button>
+    </div>
+    <div class="c4-dash__cats">
+      <div class="bubble-bar">
+        <button class="bub">🎲 Все</button>
+        <button class="bub on">🦁 Саванна</button>
+        <button class="bub">🐄 Ферма</button>
+        <button class="bub">🌲 Лес</button>
+        <button class="bub">🐱 Питомцы</button>
+      </div>
+    </div>
+    <div class="c4-dash__body">
+      <div>
+        <div style="display:flex;gap:6px;margin-bottom:12px"><span class="badge">Млекопитающее</span><span class="badge badge--neutral">Хищник</span></div>
+        <h2 class="c4-dash__name">Лев</h2>
+      </div>
+      <p class="c4-dash__desc">Крупный хищник семейства кошачьих. Его рык слышен за восемь километров по саванне.</p>
+      <div class="c4-stats">
+        <div class="c4-stat"><div class="c4-stat__val">3</div><div class="c4-stat__label">Вариации</div></div>
+        <div class="c4-stat"><div class="c4-stat__val">03</div><div class="c4-stat__label">из 09</div></div>
+        <div class="c4-stat"><div class="c4-stat__val">🔊</div><div class="c4-stat__label">Есть звук</div></div>
+      </div>
+      <div class="c4-dash__play-section">
+        <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Play">▶</button>
+        <div class="c4-dash__play-label">
+          <div class="title">Послушать голос</div>
+          <div class="hint">Space · Enter · клик по фото</div>
+        </div>
+      </div>
+      <div class="c4-dash__progress"><div class="progress-bar"><div class="progress-bar__fill" style="width:33%"></div></div></div>
+      <div class="c4-dash__keys">
+        <span class="c4-key">← → навигация</span>
+        <span class="c4-key">Space звук</span>
+        <span class="c4-key">M mute</span>
+        <span class="c4-key">F экран</span>
+        <span class="c4-key">S настройки</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONCEPT 5: MINIMAL HUD ═══ -->
+<div class="concept c5" id="c5">
+  <div class="c5-photo">
+    <div class="c5-photo__emoji">🦁</div>
+    <div class="c5-photo__grad"></div>
+  </div>
+  <div class="c5-top-bar">
+    <div class="c5-top-bar__left">
+      <div class="c5-top-bar__cat">🦁 Саванна</div>
+    </div>
+    <div class="c5-top-bar__right">
+      <button class="tgl" title="Настройки">⚙</button>
+    </div>
+  </div>
+  <div class="c5-center">
+    <h2 class="c5-center__name">Лев</h2>
+    <p class="c5-center__sub">Млекопитающее · Саванна</p>
+  </div>
+  <div class="c5-bottom-controls">
+    <button class="nav-circle" aria-label="Назад">‹</button>
+    <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Play">▶</button>
+    <button class="nav-circle" aria-label="Вперёд">›</button>
+    <span class="counter">03 / 09</span>
+  </div>
+  <div class="c5-dot-nav">
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot on"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+    <span class="c5-dot"></span>
+  </div>
+</div>
+
+<!-- ═══ SUMMARY ═══ -->
+<div class="summary" id="c0">
+  <div style="text-align:center;margin-bottom:32px">
+    <h2 class="h3" style="color:var(--c-text-strong)">Сравнение концептов</h2>
+    <p class="t-lead" style="margin-top:8px">Каждый — принципиально другой подход к расположению элементов</p>
+  </div>
+  <div class="summary__grid">
+    <div class="summary__card">
+      <div class="n">CONCEPT 01</div>
+      <h4>Photo + Sidebar</h4>
+      <div class="desc">Фото 70% экрана, вся информация и управление — в сайдбаре слева. Как DeepSeek, ChatGPT.</div>
+      <div class="pro">✓ Удобно за ноутбуком (сценарий B)</div>
+      <div class="pro">✓ Всё видно сразу без ховеров</div>
+      <div class="pro">✓ Сайдбар скроллится на мобиле</div>
+      <div class="con">– Фото не на весь экран</div>
+    </div>
+    <div class="summary__card">
+      <div class="n">CONCEPT 02</div>
+      <h4>Fullscreen + Bottom Bar</h4>
+      <div class="desc">Фото 100% экрана, управление и текст — оверлей внизу. Как Apple TV, Netflix.</div>
+      <div class="pro">✓ Максимально красивое фото</div>
+      <div class="pro">✓ Кинематографично</div>
+      <div class="con">– Текст может плохо читаться</div>
+      <div class="con">– На мобиле нижний бар закрывает фото</div>
+    </div>
+    <div class="summary__card">
+      <div class="n">CONCEPT 03</div>
+      <h4>Fullscreen + Glass Panel</h4>
+      <div class="desc">Фото 100%, стеклянная плавающая панель справа. Как Figma, Linear.</div>
+      <div class="pro">✓ Эффектно, современно</div>
+      <div class="pro">✓ Панель не мешает фото</div>
+      <div class="pro">✓ Легко скрыть панель для immersive</div>
+      <div class="con">– Backdrop-filter тяжёл на слабых устройствах</div>
+    </div>
+    <div class="summary__card">
+      <div class="n">CONCEPT 04</div>
+      <h4>Split 50/50 Dashboard</h4>
+      <div class="desc">Фото слева, dashboard с информацией справа. Как Arena.ai, Notion.</div>
+      <div class="pro">✓ Самый «dashboard» из всех</div>
+      <div class="pro">✓ Отлично для портфолио</div>
+      <div class="pro">✓ Удобно с клавиатуры</div>
+      <div class="con">– Фото только 50%</div>
+    </div>
+    <div class="summary__card">
+      <div class="n">CONCEPT 05</div>
+      <h4>Fullscreen + Minimal HUD</h4>
+      <div class="desc">Фото 100%, минимум UI поверх. Максимум immersive. Как Instagram Stories.</div>
+      <div class="pro">✓ Максимальное погружение</div>
+      <div class="pro">✓ Идеально для малышей</div>
+      <div class="con">– Мало информации на экране</div>
+      <div class="con">– Нужен ховер/тап для управления</div>
+    </div>
+  </div>
+  <div class="summary__rec">
+    <b>💡 Мои рекомендации:</b><br><br>
+    <b>Для десктопа:</b> Concept 1 (Sidebar) или Concept 4 (Split) — оба дают dashboard-ощущение, управление видно, фото большое.<br><br>
+    <b>Для мобильных:</b> Concept 2 (Bottom bar) или Concept 5 (HUD) — фото на весь экран, свайпы, минимум UI.<br><br>
+    <b>Идеальный гибрид:</b> На десктопе — <b>Concept 1 (Sidebar)</b>, на мобиле автоматически — <b>Concept 2 (Bottom bar)</b>. Один компонент, два layout через CSS media queries. Это даст лучший UX на обоих устройствах.
+  </div>
+</div>
+
+<script>
+function show(n){
+  document.querySelectorAll('.concept,.summary').forEach(c=>{c.classList.remove('on')});
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const el=document.getElementById('c'+n);
+  if(el)el.classList.add('on');
+  const tabs=document.querySelectorAll('.tab');
+  const idx=n===0?tabs.length-1:n-1;
+  if(tabs[idx])tabs[idx].classList.add('active');
+}
+document.getElementById('pal').addEventListener('click',e=>{
+  const d=e.target.closest('.pal__d');
+  if(!d)return;
+  document.body.dataset.accent=d.dataset.a;
+  document.querySelectorAll('.pal__d').forEach(x=>x.classList.toggle('on',x===d));
+});
+document.getElementById('tBtn').addEventListener('click',e=>{
+  const cur=document.documentElement.dataset.theme;
+  if(cur==='dark'){document.documentElement.removeAttribute('data-theme');e.currentTarget.textContent='🌙'}
+  else{document.documentElement.dataset.theme='dark';e.currentTarget.textContent='☀️'}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='5')show(+e.key);
+  if(e.key==='0')show(0);
+  if(e.key==='d'||e.key==='D')document.getElementById('tBtn').click();
+});
+</script>
+</body>
+</html>

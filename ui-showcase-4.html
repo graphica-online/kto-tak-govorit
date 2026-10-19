@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI Kit — Кто так говорит?</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Акцент (переопределяется [data-accent]) */
+  --c-brand:            #FF5739;
+  --c-brand-hover:      #FF6246;
+  --c-brand-active:     #E84A2F;
+  --c-brand-soft:       rgba(255, 87, 57, .08);
+  --c-brand-mid:        rgba(255, 87, 57, .18);
+  --c-brand-shadow:     rgba(255, 87, 57, .25);
+
+  /* Фон */
+  --c-bg:               #FFFFFF;
+  --c-bg-soft:          #F2F6FA;
+  --c-bg-mute:          #E8EDF3;
+  --c-bg-dark:          #384562;
+  --c-bg-dark-hover:    #2E3A52;
+
+  /* Текст */
+  --c-text:             #3C4760;
+  --c-text-strong:      #1F2740;
+  --c-text-muted:       rgba(60, 71, 96, .70);
+  --c-text-dim:         rgba(60, 71, 96, .45);
+  --c-text-on-dark:     #FFFFFF;
+  --c-text-on-dark-dim: rgba(255, 255, 255, .55);
+  --c-text-link:        #018AD2;
+
+  /* Границы */
+  --c-border:           rgba(56, 69, 98, .12);
+  --c-border-strong:    rgba(56, 69, 98, .22);
+
+  /* Статусы */
+  --c-success:          #22A06B;
+  --c-success-soft:     rgba(34, 160, 107, .10);
+  --c-danger:           #CF2D2D;
+  --c-danger-soft:      rgba(207, 45, 45, .10);
+  --c-warning:          #FFB800;
+  --c-warning-soft:     rgba(255, 184, 0, .15);
+  --c-warning-text:     #B37C00;
+
+  /* Тени */
+  --shadow-s:           0 1px 2px rgba(26, 33, 61, .08);
+  --shadow-m:           0 4px 20px rgba(56, 69, 98, .10);
+  --shadow-l:           0 13px 40px rgba(48, 76, 135, .18);
+  --shadow-brand:       0 8px 24px var(--c-brand-shadow);
+  --shadow-popup:       0 0 0 1px rgba(13, 35, 67, .08), 0 10px 30px -5px rgba(13, 35, 67, .25);
+
+  /* Радиусы */
+  --r-xs: 6px;  --r-s: 10px;  --r-m: 14px;  --r-l: 20px;
+  --r-xl: 28px; --r-2xl: 40px; --r-pill: 999px;
+
+  /* Шрифт */
+  --font: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Размеры */
+  --fs-xs: 13px;  --fs-s: 15px;  --fs-m: 17px;  --fs-l: 22px;
+  --fs-xl: 28px;  --fs-2xl: 42px; --fs-3xl: 56px;
+
+  /* Отступы */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
+
+  /* Движение */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-fast: .15s;
+  --dur: .25s;
+  --dur-slow: .4s;
+}
+
+/* ─── Акцентные палитры ─── */
+[data-accent="coral"]  { --c-brand:#FF5739; --c-brand-hover:#FF6246; --c-brand-active:#E84A2F; --c-brand-soft:rgba(255,87,57,.08); --c-brand-mid:rgba(255,87,57,.18); --c-brand-shadow:rgba(255,87,57,.25); }
+[data-accent="blue"]   { --c-brand:#2383E2; --c-brand-hover:#3691EB; --c-brand-active:#1B6EC2; --c-brand-soft:rgba(35,131,226,.08); --c-brand-mid:rgba(35,131,226,.18); --c-brand-shadow:rgba(35,131,226,.25); }
+[data-accent="green"]  { --c-brand:#10B981; --c-brand-hover:#22C993; --c-brand-active:#059669; --c-brand-soft:rgba(16,185,129,.08); --c-brand-mid:rgba(16,185,129,.18); --c-brand-shadow:rgba(16,185,129,.25); }
+[data-accent="purple"] { --c-brand:#7C3AED; --c-brand-hover:#8E52F0; --c-brand-active:#6025C0; --c-brand-soft:rgba(124,58,237,.08); --c-brand-mid:rgba(124,58,237,.18); --c-brand-shadow:rgba(124,58,237,.25); }
+[data-accent="pink"]   { --c-brand:#EC4899; --c-brand-hover:#F15CA6; --c-brand-active:#D1337F; --c-brand-soft:rgba(236,72,153,.08); --c-brand-mid:rgba(236,72,153,.18); --c-brand-shadow:rgba(236,72,153,.25); }
+[data-accent="indigo"] { --c-brand:#6366F1; --c-brand-hover:#7679F3; --c-brand-active:#4F52D1; --c-brand-soft:rgba(99,102,241,.08); --c-brand-mid:rgba(99,102,241,.18); --c-brand-shadow:rgba(99,102,241,.25); }
+[data-accent="teal"]   { --c-brand:#14B8A6; --c-brand-hover:#2CCAB9; --c-brand-active:#0F968A; --c-brand-soft:rgba(20,184,166,.08); --c-brand-mid:rgba(20,184,166,.18); --c-brand-shadow:rgba(20,184,166,.25); }
+[data-accent="amber"]  { --c-brand:#F59E0B; --c-brand-hover:#F8AD2C; --c-brand-active:#D18808; --c-brand-soft:rgba(245,158,11,.08); --c-brand-mid:rgba(245,158,11,.18); --c-brand-shadow:rgba(245,158,11,.25); }
+
+/* ─── Dark theme ─── */
+[data-theme="dark"] {
+  --c-bg:               #141A28;
+  --c-bg-soft:          #1E2638;
+  --c-bg-mute:          #262F44;
+  --c-bg-dark:          #0A0F1C;
+  --c-bg-dark-hover:    #141A28;
+  --c-text:             #D8DEEA;
+  --c-text-strong:      #FFFFFF;
+  --c-text-muted:       rgba(216, 222, 234, .70);
+  --c-text-dim:         rgba(216, 222, 234, .40);
+  --c-border:           rgba(255, 255, 255, .08);
+  --c-border-strong:    rgba(255, 255, 255, .15);
+  --shadow-s:           0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-m:           0 4px 20px rgba(0, 0, 0, .25);
+  --shadow-l:           0 13px 40px rgba(0, 0, 0, .40);
+  --shadow-popup:       0 0 0 1px rgba(255, 255, 255, .08), 0 10px 30px -5px rgba(0, 0, 0, .5);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-s);
+  line-height: 1.5;
+  color: var(--c-text);
+  background: var(--c-bg-soft);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+img, svg, video { max-width: 100%; display: block; border: 0; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; padding: 0; }
+a { color: inherit; text-decoration: none; cursor: pointer; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3, h4, h5, h6, p, figure, pre { margin: 0; }
+code { font-family: var(--font-mono); font-size: .9em; background: var(--c-bg-mute); padding: 2px 6px; border-radius: var(--r-xs); }
+
+:focus-visible {
+  outline: 2px solid var(--c-brand);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════════════════════════════ */
+.h1 { font-size: var(--fs-3xl); line-height: 1.05; font-weight: 800; letter-spacing: -.03em; color: var(--c-text-strong); }
+.h2 { font-size: var(--fs-2xl); line-height: 1.1; font-weight: 700; letter-spacing: -.02em; color: var(--c-text-strong); }
+.h3 { font-size: var(--fs-xl); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--c-text-strong); }
+.h4 { font-size: var(--fs-l); line-height: 1.25; font-weight: 600; color: var(--c-text-strong); }
+.h5 { font-size: var(--fs-m); line-height: 1.3; font-weight: 600; color: var(--c-text-strong); }
+
+.t-lead { font-size: var(--fs-m); line-height: 1.5; color: var(--c-text-muted); }
+.t-body { font-size: var(--fs-s); line-height: 1.5; color: var(--c-text); }
+.t-small { font-size: var(--fs-xs); line-height: 1.4; color: var(--c-text-muted); }
+.t-mono { font-family: var(--font-mono); font-size: var(--fs-xs); }
+.t-strong { color: var(--c-text-strong); font-weight: 600; }
+.t-muted { color: var(--c-text-muted); }
+.t-dim { color: var(--c-text-dim); }
+.t-brand { color: var(--c-brand); }
+
+@media (max-width: 767px) {
+  .h1 { font-size: 36px; }
+  .h2 { font-size: 28px; }
+  .h3 { font-size: 22px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+.container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-5); }
+.container--narrow { max-width: 960px; }
+.section { padding: var(--sp-16) 0; }
+.section--s { padding: var(--sp-10) 0; }
+.row { display: flex; gap: var(--sp-5); }
+.row--mid { align-items: center; }
+.row--btw { justify-content: space-between; }
+.row--wrap { flex-wrap: wrap; }
+.row--s { gap: var(--sp-2); }
+.col { display: flex; flex-direction: column; gap: var(--sp-4); }
+.col--s { gap: var(--sp-2); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+@media (max-width: 1023px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 767px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+.mt-2{margin-top:var(--sp-2)} .mt-4{margin-top:var(--sp-4)} .mt-6{margin-top:var(--sp-6)} .mt-8{margin-top:var(--sp-8)} .mt-10{margin-top:var(--sp-10)}
+.mb-2{margin-bottom:var(--sp-2)} .mb-4{margin-bottom:var(--sp-4)} .mb-6{margin-bottom:var(--sp-6)} .mb-8{margin-bottom:var(--sp-8)}
+.text-center{text-align:center} .hidden{display:none !important}
+
+/* ══════════════════════════════════════════════════════════════
+   BUTTON
+   ══════════════════════════════════════════════════════════════ */
+.btn {
+  --h: 50px; --p: 0 28px; --fs: 16px; --r: var(--r-m);
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-2);
+  min-width: 100px;
+  height: var(--h);
+  padding: var(--p);
+  font-size: var(--fs);
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  background: var(--c-brand);
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+.btn:hover { background: var(--c-brand-hover); box-shadow: var(--shadow-brand); }
+.btn:active { background: var(--c-brand-active); transform: scale(.97); box-shadow: none; }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--c-bg-mute); color: var(--c-text-dim);
+  cursor: not-allowed; pointer-events: none; box-shadow: none;
+}
+
+.btn--s { --h: 38px; --p: 0 16px; --fs: 14px; --r: var(--r-s); min-width: 80px; }
+.btn--l { --h: 60px; --p: 0 32px; --fs: 17px; }
+
+.btn--outline {
+  color: var(--c-text-strong); background: transparent;
+  border-color: var(--c-border-strong);
+}
+.btn--outline:hover { background: transparent; border-color: var(--c-brand); color: var(--c-brand); box-shadow: none; }
+.btn--outline:active { background: var(--c-brand-soft); }
+
+.btn--ghost { color: var(--c-text-strong); background: transparent; }
+.btn--ghost:hover { background: var(--c-bg-mute); box-shadow: none; }
+
+.btn--dark { background: var(--c-bg-dark); }
+.btn--dark:hover { background: var(--c-bg-dark-hover); box-shadow: none; }
+
+.btn--link {
+  min-width: 0; height: auto; padding: 0;
+  color: var(--c-brand); background: none; border: 0; border-radius: 0;
+}
+.btn--link:hover { color: var(--c-brand-hover); text-decoration: underline; background: none; box-shadow: none; }
+
+/* Stacked (двухстрочная) — исправлен конфликт width/mobile */
+.btn--stacked {
+  flex-direction: column; gap: 4px;
+  min-width: 240px; height: 84px;
+  text-align: center;
+}
+.btn--stacked .btn__title { font-size: 18px; line-height: 1.1; font-weight: 600; }
+.btn--stacked .btn__sub { font-size: 12px; line-height: 1.2; opacity: .6; font-weight: 500; }
+
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-s);
+  transition: all var(--dur-fast) var(--ease);
+}
+.btn-icon:hover { background: var(--c-bg-soft); border-color: var(--c-brand); color: var(--c-brand); }
+.btn-icon:active { transform: scale(.95); }
+.btn-icon--round { border-radius: var(--r-pill); }
+.btn-icon--ghost { background: transparent; border-color: transparent; }
+.btn-icon--ghost:hover { background: var(--c-bg-mute); border-color: transparent; color: var(--c-text-strong); }
+.btn-icon--l { width: 56px; height: 56px; font-size: 20px; }
+
+/* ══════════════════════════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════════════════════════ */
+.navbar {
+  display: flex; align-items: center; gap: var(--sp-6);
+  padding: 0 var(--sp-6);
+  min-height: 68px;
+  background: var(--c-bg-dark);
+  color: var(--c-text-on-dark);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+.navbar__logo { font-size: var(--fs-m); font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+.navbar__logo-mark { color: var(--c-brand); font-size: 24px; }
+.navbar__nav { display: flex; gap: var(--sp-5); margin-left: auto; align-items: center; }
+.navbar__link {
+  padding: var(--sp-2) 0;
+  color: var(--c-text-on-dark-dim);
+  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease);
+}
+.navbar__link:hover, .navbar__link.is-active { color: #fff; }
+.navbar__cta {
+  display: inline-flex; flex-direction: column; align-items: center;
+  padding: var(--sp-2) var(--sp-4);
+  min-width: 160px;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: var(--r-s);
+  transition: opacity var(--dur) var(--ease);
+}
+.navbar__cta:hover { opacity: .7; }
+.navbar__cta-title { font-size: var(--fs-s); font-weight: 600; }
+.navbar__cta-sub { font-size: 11px; color: var(--c-text-on-dark-dim); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════════════════════
+   CARD
+   ══════════════════════════════════════════════════════════════ */
+.card {
+  padding: var(--sp-8);
+  background: var(--c-bg);
+  border-radius: var(--r-xl);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.card--soft { background: var(--c-bg-soft); }
+.card--border { border: 1px solid var(--c-border); }
+.card--hover { cursor: pointer; }
+.card--hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-m); }
+.card--pad-s { padding: var(--sp-5); }
+.card--pad-l { padding: var(--sp-12); }
+
+/* ══════════════════════════════════════════════════════════════
+   FEATURE
+   ══════════════════════════════════════════════════════════════ */
+.feature {
+  position: relative;
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  padding: var(--sp-8);
+  background: var(--c-bg-soft);
+  border-radius: var(--r-xl);
+}
+.feature__badge {
+  position: absolute;
+  top: var(--sp-3); left: var(--sp-3);
+  padding: 8px 16px;
+  font-size: var(--fs-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border-radius: var(--r-pill);
+}
+.feature__emoji { font-size: 120px; text-align: center; line-height: 1; margin: var(--sp-4) 0; }
+.feature__title { font-size: var(--fs-xl); line-height: 1.15; font-weight: 700; color: var(--c-text-strong); }
+.feature__desc { font-size: var(--fs-s); line-height: 1.5; color: var(--c-text-muted); }
+
+/* ══════════════════════════════════════════════════════════════
+   BUBBLE (категории)
+   ══════════════════════════════════════════════════════════════ */
+.bubble {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: 12px 20px;
+  font-size: var(--fs-s); font-weight: 600;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  transition: all var(--dur) var(--ease);
+}
+.bubble:hover { border-color: var(--c-brand); color: var(--c-brand); transform: translateY(-2px); }
+.bubble.is-active {
+  background: var(--c-brand); color: #fff; border-color: var(--c-brand);
+  box-shadow: var(--shadow-brand);
+}
+.bubble__emoji { font-size: 18px; line-height: 1; }
+.bubble__count { font-size: 12px; font-weight: 500; opacity: .6; margin-left: 2px; }
+.bubble.is-active .bubble__count { opacity: .9; }
+
+@keyframes levitate {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.bubble--float { animation: levitate 4s ease-in-out infinite; }
+.bubble--float:nth-child(2n) { animation-delay: -1.3s; }
+.bubble--float:nth-child(3n) { animation-delay: -2.6s; }
+.bubble--float:hover { animation-play-state: paused; }
+
+/* ══════════════════════════════════════════════════════════════
+   BADGE
+   ══════════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  font-size: var(--fs-xs); font-weight: 600;
+  color: var(--c-text-strong);
+  background: var(--c-bg-soft);
+  border-radius: var(--r-pill);
+  line-height: 1.3;
+}
+.badge--brand { color: var(--c-brand); background: var(--c-brand-soft); }
+.badge--success { color: var(--c-success); background: var(--c-success-soft); }
+.badge--danger { color: var(--c-danger); background: var(--c-danger-soft); }
+.badge--warning { color: var(--c-warning-text); background: var(--c-warning-soft); }
+.badge--dark { color: #fff; background: var(--c-bg-dark); }
+
+/* ══════════════════════════════════════════════════════════════
+   FIELD / INPUT
+   ══════════════════════════════════════════════════════════════ */
+.field { display: flex; flex-direction: column; gap: var(--sp-2); }
+.field__label { font-size: var(--fs-xs); font-weight: 600; color: var(--c-text-muted); }
+.field__hint { font-size: var(--fs-xs); color: var(--c-text-dim); }
+.field__error { font-size: var(--fs-xs); color: var(--c-danger); }
+
+.input {
+  height: 48px;
+  padding: 0 var(--sp-4);
+  font-size: var(--fs-s);
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-m);
+  transition: border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+.input::placeholder { color: var(--c-text-dim); }
+.input:hover { border-color: var(--c-text-dim); }
+.input:focus { outline: none; border-color: var(--c-brand); box-shadow: 0 0 0 3px var(--c-brand-soft); }
+.input:disabled { background: var(--c-bg-mute); color: var(--c-text-dim); cursor: not-allowed; }
+.input--error { border-color: var(--c-danger); }
+.input--error:focus { box-shadow: 0 0 0 3px var(--c-danger-soft); }
+.textarea { min-height: 120px; padding: var(--sp-3) var(--sp-4); resize: vertical; height: auto; }
+
+/* Checkbox */
+.check { display: inline-flex; align-items: center; gap: var(--sp-2); cursor: pointer; font-size: var(--fs-s); user-select: none; }
+.check input {
+  width: 20px; height: 20px;
+  accent-color: var(--c-brand);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch__slider {
+  position: absolute; inset: 0;
+  background: var(--c-border-strong);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+.switch__slider::before {
+  content: "";
+  position: absolute; top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--dur) var(--ease);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+}
+.switch input:checked + .switch__slider { background: var(--c-brand); }
+.switch input:checked + .switch__slider::before { transform: translateX(20px); }
+
+/* Slider */
+.slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px;
+  background: var(--c-bg-mute);
+  border-radius: var(--r-pill);
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--c-brand);
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow-s);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--c-brand);
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow-s);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TABS
+   ══════════════════════════════════════════════════════════════ */
+.tabs { display: flex; gap: var(--sp-5); border-bottom: 1px solid var(--c-border); }
+.tabs__item {
+  position: relative;
+  padding: var(--sp-3) 0;
+  font-size: var(--fs-s); font-weight: 600;
+  color: var(--c-text-muted);
+  transition: color var(--dur-fast) var(--ease);
+}
+.tabs__item:hover { color: var(--c-text-strong); }
+.tabs__item.is-active { color: var(--c-text-strong); }
+.tabs__item.is-active::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -1px;
+  height: 2px; background: var(--c-brand);
+  border-radius: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACCORDION
+   ══════════════════════════════════════════════════════════════ */
+.accordion { border-bottom: 1px solid var(--c-border); }
+.accordion__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5) 0;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+  text-align: left;
+}
+.accordion__title { font-size: var(--fs-m); line-height: 1.4; font-weight: 600; color: var(--c-text-strong); }
+.accordion__icon {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  color: var(--c-text-muted);
+  transition: transform var(--dur) var(--ease);
+}
+.accordion__body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding-right: 0;
+  font-size: var(--fs-s); line-height: 1.6;
+  color: var(--c-text-muted);
+  transition: max-height var(--dur-slow) var(--ease),
+              opacity var(--dur) var(--ease),
+              padding var(--dur) var(--ease);
+}
+@media (min-width: 768px) {
+  .accordion__body { padding-right: var(--sp-16); }
+}
+.accordion.is-open .accordion__body { max-height: 500px; opacity: 1; padding-bottom: var(--sp-5); }
+.accordion.is-open .accordion__icon { transform: rotate(180deg); color: var(--c-brand); }
+
+/* ══════════════════════════════════════════════════════════════
+   SETTING ROW
+   ══════════════════════════════════════════════════════════════ */
+.setting {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.setting:last-child { border: 0; }
+.setting__info { flex: 1; min-width: 0; }
+.setting__title { font-size: var(--fs-s); font-weight: 600; color: var(--c-text-strong); margin-bottom: 2px; }
+.setting__desc { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.setting__control { display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0; }
+.setting__value { font-size: var(--fs-xs); font-weight: 600; color: var(--c-text-strong); min-width: 55px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════
+   AVATAR / TOOLTIP / SKELETON / DIVIDER
+   ══════════════════════════════════════════════════════════════ */
+.avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  font-size: var(--fs-s); font-weight: 600;
+  color: #fff;
+  background: var(--c-brand);
+  border-radius: 50%;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--s { width: 32px; height: 32px; font-size: var(--fs-xs); }
+.avatar--l { width: 56px; height: 56px; font-size: var(--fs-m); }
+
+.tooltip { position: relative; display: inline-flex; }
+.tooltip__text {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-xs); line-height: 1.4; font-weight: 500;
+  color: #fff;
+  background: var(--c-text-strong);
+  border-radius: var(--r-s);
+  max-width: 240px;
+  width: max-content;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  z-index: 10;
+}
+.tooltip:hover .tooltip__text, .tooltip:focus-within .tooltip__text {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--c-bg-mute) 25%, var(--c-bg-soft) 50%, var(--c-bg-mute) 75%);
+  background-size: 200% 100%;
+  animation: skel-shift 1.4s ease-in-out infinite;
+  border-radius: var(--r-s);
+}
+.skeleton--text { height: 14px; width: 100%; margin-bottom: var(--sp-2); }
+.skeleton--title { height: 28px; width: 60%; margin-bottom: var(--sp-4); }
+.skeleton--img { height: 200px; width: 100%; border-radius: var(--r-m); }
+@keyframes skel-shift {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.divider { height: 1px; background: var(--c-border); border: 0; margin: var(--sp-6) 0; }
+
+/* ══════════════════════════════════════════════════════════════
+   LINK
+   ══════════════════════════════════════════════════════════════ */
+.link { color: var(--c-text-link); transition: color var(--dur-fast) var(--ease); }
+.link:hover { color: var(--c-brand); }
+.link--underline { text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST / NOTIFICATION
+   ══════════════════════════════════════════════════════════════ */
+.toast {
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--c-text-strong);
+  color: #fff;
+  border-radius: var(--r-m);
+  box-shadow: var(--shadow-l);
+  font-size: var(--fs-s); font-weight: 500;
+}
+.toast__icon { font-size: 18px; }
+
+/* ══════════════════════════════════════════════════════════════
+   MODAL / POPUP
+   ══════════════════════════════════════════════════════════════ */
+.modal {
+  padding: var(--sp-8);
+  background: var(--c-bg);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-popup);
+  max-width: 480px;
+  width: 100%;
+}
+.modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); padding-bottom: var(--sp-4); border-bottom: 1px solid var(--c-border); }
+.modal__title { font-size: var(--fs-l); font-weight: 700; color: var(--c-text-strong); }
+
+/* ══════════════════════════════════════════════════════════════
+   ★ ANIMAL STAGE (главный компонент приложения)
+   ══════════════════════════════════════════════════════════════ */
+.animal-stage {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--sp-10);
+  align-items: center;
+  padding: var(--sp-10);
+  background: var(--c-bg);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-l);
+  min-height: 540px;
+}
+.animal-photo {
+  position: relative;
+  aspect-ratio: 4/5;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-brand-mid), var(--c-brand-soft));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 220px;
+}
+.animal-photo__badge {
+  position: absolute; top: var(--sp-4); left: var(--sp-4);
+  padding: 8px 14px;
+  background: var(--c-bg);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs); font-weight: 600;
+  color: var(--c-text-strong);
+  display: flex; align-items: center; gap: 6px;
+  box-shadow: var(--shadow-s);
+}
+.animal-photo__counter {
+  position: absolute; top: var(--sp-4); right: var(--sp-4);
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(10px);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs); font-weight: 600;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.animal-info { display: flex; flex-direction: column; gap: var(--sp-5); }
+.animal-info__name {
+  font-size: var(--fs-3xl); line-height: .95;
+  font-weight: 800; letter-spacing: -.03em;
+  color: var(--c-text-strong);
+}
+.animal-info__desc { font-size: var(--fs-m); color: var(--c-text-muted); line-height: 1.5; max-width: 400px; }
+.animal-controls { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-2); }
+
+.play-btn {
+  --size: 72px;
+  width: var(--size); height: var(--size);
+  border-radius: 50%;
+  background: var(--c-brand);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  box-shadow: var(--shadow-brand);
+  transition: all var(--dur) var(--ease);
+  position: relative;
+}
+.play-btn:hover { transform: scale(1.08); background: var(--c-brand-hover); }
+.play-btn:active { transform: scale(.96); }
+.play-btn.is-playing::before {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--c-brand);
+  opacity: .5;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(.95); opacity: .5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.nav-arrow {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  transition: all var(--dur-fast) var(--ease);
+}
+.nav-arrow:hover { background: var(--c-bg-soft); border-color: var(--c-brand); color: var(--c-brand); }
+
+@media (max-width: 767px) {
+  .animal-stage { grid-template-columns: 1fr; padding: var(--sp-5); min-height: auto; }
+  .animal-info__name { font-size: 40px; }
+  .play-btn { --size: 64px; font-size: 24px; }
+  .nav-arrow { width: 48px; height: 48px; font-size: 18px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DEMO (только для этой страницы)
+   ══════════════════════════════════════════════════════════════ */
+.demo-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255, 255, 255, .9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--c-border);
+  padding: var(--sp-3) var(--sp-5);
+  display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap;
+}
+[data-theme="dark"] .demo-nav { background: rgba(20, 26, 40, .9); }
+.demo-nav h1 { font-size: var(--fs-s); font-weight: 700; margin-right: auto; }
+
+.demo-block { padding: var(--sp-10) 0; border-bottom: 1px dashed var(--c-border); }
+.demo-block:last-child { border-bottom: 0; }
+.demo-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--c-text-dim);
+  margin-bottom: var(--sp-5);
+}
+.demo-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
+
+.palette { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.palette__dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.palette__dot:hover { transform: scale(1.15); }
+.palette__dot.is-active {
+  border-color: var(--c-text-strong);
+  box-shadow: 0 0 0 2px var(--c-bg);
+}
+</style>
+</head>
+
+<body data-accent="coral">
+
+<!-- ═════════════ DEMO NAV ═════════════ -->
+<nav class="demo-nav">
+  <h1>🐾 UI Kit · Кто так говорит?</h1>
+  <div class="palette" id="palette">
+    <div class="palette__dot is-active" data-accent="coral"  style="background:#FF5739" title="Коралловый"></div>
+    <div class="palette__dot" data-accent="blue"   style="background:#2383E2" title="Синий"></div>
+    <div class="palette__dot" data-accent="green"  style="background:#10B981" title="Зелёный"></div>
+    <div class="palette__dot" data-accent="purple" style="background:#7C3AED" title="Фиолетовый"></div>
+    <div class="palette__dot" data-accent="pink"   style="background:#EC4899" title="Розовый"></div>
+    <div class="palette__dot" data-accent="indigo" style="background:#6366F1" title="Индиго"></div>
+    <div class="palette__dot" data-accent="teal"   style="background:#14B8A6" title="Бирюза"></div>
+    <div class="palette__dot" data-accent="amber"  style="background:#F59E0B" title="Янтарный"></div>
+  </div>
+  <button class="btn-icon btn-icon--ghost" id="themeBtn" title="Переключить тему">🌙</button>
+</nav>
+
+<!-- ═════════════ APP NAVBAR DEMO ═════════════ -->
+<header class="navbar">
+  <a class="navbar__logo" href="#">
+    <span class="navbar__logo-mark">🐾</span>
+    Кто так говорит?
+  </a>
+  <nav class="navbar__nav">
+    <a class="navbar__link is-active" href="#">Животные</a>
+    <a class="navbar__link" href="#">Категории</a>
+    <a class="navbar__link" href="#">О приложении</a>
+  </nav>
+  <button class="navbar__cta">
+    <span class="navbar__cta-title">⚙ Настройки</span>
+    <span class="navbar__cta-sub">Персонализация</span>
+  </button>
+</header>
+
+<main class="container">
+
+  <!-- ═════════ 1. ANIMAL STAGE ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">01 · Главный экран · Карточка животного</div>
+
+    <!-- Bubbles категорий -->
+    <div class="row row--wrap mb-6">
+      <button class="bubble bubble--float"><span class="bubble__emoji">🎲</span>Все<span class="bubble__count">55</span></button>
+      <button class="bubble bubble--float is-active"><span class="bubble__emoji">🦁</span>Саванна<span class="bubble__count">9</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐄</span>Ферма<span class="bubble__count">10</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🌲</span>Лес<span class="bubble__count">10</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐱</span>Питомцы<span class="bubble__count">6</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🦉</span>Птицы<span class="bubble__count">8</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐬</span>Море<span class="bubble__count">6</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐝</span>Насекомые<span class="bubble__count">6</span></button>
+    </div>
+
+    <div class="animal-stage">
+      <div class="animal-photo">
+        🦁
+        <div class="animal-photo__badge">🦁 Саванна</div>
+        <div class="animal-photo__counter">03 / 09</div>
+      </div>
+      <div class="animal-info">
+        <div class="row row--s">
+          <span class="badge badge--brand">Млекопитающее</span>
+          <span class="badge">Хищник</span>
+        </div>
+        <h2 class="animal-info__name">Лев</h2>
+        <p class="animal-info__desc">Крупный хищник семейства кошачьих, обитающий в саваннах Африки. Его рык слышен за восемь километров.</p>
+        <div class="animal-controls">
+          <button class="play-btn" onclick="this.classList.toggle('is-playing')" aria-label="Воспроизвести звук">▶</button>
+          <button class="nav-arrow" aria-label="Предыдущее">‹</button>
+          <button class="nav-arrow" aria-label="Следующее">›</button>
+          <span class="tooltip">
+            <button class="btn-icon btn-icon--round btn-icon--ghost" aria-label="Повторить">↻</button>
+            <span class="tooltip__text">Повторить звук (R)</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 2. TYPOGRAPHY ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">02 · Типографика</div>
+    <h1 class="h1">Заголовок H1 · 56/1.05/800</h1>
+    <h2 class="h2 mt-4">Заголовок H2 · 42/1.1/700</h2>
+    <h3 class="h3 mt-4">Заголовок H3 · 28/1.15/700</h3>
+    <h4 class="h4 mt-4">Заголовок H4 · 22/1.25/600</h4>
+    <p class="t-lead mt-6">Лид-текст · 17/1.5 · используется под заголовками секций для описания.</p>
+    <p class="t-body mt-4">Основной текст · 15/1.5. Описания, содержимое карточек, тело интерфейса.</p>
+    <p class="t-small mt-4">Мелкий текст · 13/1.4 · подписи, хинты, метаданные.</p>
+    <p class="t-body mt-4">
+      <span class="t-strong">Strong</span> ·
+      <span class="t-muted">Muted</span> ·
+      <span class="t-dim">Dim</span> ·
+      <span class="t-brand">Brand</span> ·
+      <a class="link link--underline" href="#">ссылка</a>
+    </p>
+  </section>
+
+  <!-- ═════════ 3. BUTTONS ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">03 · Кнопки · варианты</div>
+    <div class="demo-row">
+      <button class="btn">Primary</button>
+      <button class="btn btn--outline">Outline</button>
+      <button class="btn btn--ghost">Ghost</button>
+      <button class="btn btn--dark">Dark</button>
+      <button class="btn btn--link">Link-кнопка</button>
+      <button class="btn" disabled>Disabled</button>
+    </div>
+
+    <div class="demo-label mt-8">Размеры</div>
+    <div class="demo-row">
+      <button class="btn btn--s">Small · 38</button>
+      <button class="btn">Medium · 50</button>
+      <button class="btn btn--l">Large · 60</button>
+    </div>
+
+    <div class="demo-label mt-8">Stacked (двухстрочная)</div>
+    <div class="demo-row">
+      <button class="btn btn--stacked">
+        <span class="btn__title">📥 Скачать всё</span>
+        <span class="btn__sub">55 животных · 18 МБ</span>
+      </button>
+      <button class="btn btn--stacked btn--outline">
+        <span class="btn__title">⚙ Настройки</span>
+        <span class="btn__sub">Персонализация</span>
+      </button>
+    </div>
+
+    <div class="demo-label mt-8">Icon-кнопки</div>
+    <div class="demo-row">
+      <button class="btn-icon" aria-label="Menu">☰</button>
+      <button class="btn-icon btn-icon--round" aria-label="Close">✕</button>
+      <button class="btn-icon btn-icon--ghost" aria-label="More">⋯</button>
+      <button class="btn-icon btn-icon--l btn-icon--round" aria-label="Play" style="background:var(--c-brand);color:#fff;border-color:var(--c-brand)">🔊</button>
+    </div>
+  </section>
+
+  <!-- ═════════ 4. SETTINGS PANEL ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">04 · Панель настроек</div>
+
+    <div class="modal">
+      <div class="modal__header">
+        <div class="modal__title">Настройки</div>
+        <button class="btn-icon btn-icon--ghost" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Автоплей</div>
+          <div class="setting__desc">Звук воспроизводится при показе карточки</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Задержка автоплея</div>
+          <div class="setting__desc">Пауза перед воспроизведением</div>
+        </div>
+        <div class="setting__control" style="min-width:200px">
+          <input type="range" class="slider" min="0" max="3000" value="400" step="100" oninput="this.nextElementSibling.textContent = this.value + ' мс'">
+          <span class="setting__value">400 мс</span>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Громкость</div>
+          <div class="setting__desc">Уровень звука 0–100%</div>
+        </div>
+        <div class="setting__control" style="min-width:200px">
+          <input type="range" class="slider" min="0" max="100" value="80" oninput="this.nextElementSibling.textContent = this.value + '%'">
+          <span class="setting__value">80%</span>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Циклическая навигация</div>
+          <div class="setting__desc">После последнего → первое</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox">
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Показывать без звука</div>
+          <div class="setting__desc">Бабочка, улитка и другие молчуны</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="row row--s mt-5">
+        <button class="btn btn--s btn--outline">📥 Скачать для офлайна</button>
+        <button class="btn btn--s btn--ghost">Сбросить</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 5. BADGES ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">05 · Бейджи</div>
+    <div class="demo-row">
+      <span class="badge">Default</span>
+      <span class="badge badge--brand">Brand</span>
+      <span class="badge badge--success">✓ Онлайн</span>
+      <span class="badge badge--warning">⚠ Внимание</span>
+      <span class="badge badge--danger">✕ Ошибка</span>
+      <span class="badge badge--dark">Dark</span>
+      <span class="badge">🔇 Без звука</span>
+    </div>
+  </section>
+
+  <!-- ═════════ 6. CARDS ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">06 · Карточки</div>
+    <div class="grid-3">
+      <div class="card">
+        <h4 class="h4">Default</h4>
+        <p class="t-body mt-2">Белый фон, скругление 28px.</p>
+      </div>
+      <div class="card card--soft">
+        <h4 class="h4">Soft</h4>
+        <p class="t-body mt-2">С мягким серо-голубым фоном.</p>
+      </div>
+      <div class="card card--border card--hover">
+        <h4 class="h4">Border + Hover</h4>
+        <p class="t-body mt-2">С границей и hover-эффектом.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 7. FEATURE ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">07 · Feature card (для О приложении)</div>
+    <div class="grid-3">
+      <article class="feature">
+        <span class="feature__badge">Офлайн</span>
+        <div class="feature__emoji">✈️</div>
+        <h3 class="feature__title">Работает без интернета</h3>
+        <p class="feature__desc">Один раз загрузите — пользуйтесь в поездке, самолёте, на даче.</p>
+      </article>
+      <article class="feature">
+        <span class="feature__badge">55 животных</span>
+        <div class="feature__emoji">🦁</div>
+        <h3 class="feature__title">Реальные фото и звуки</h3>
+        <p class="feature__desc">Качественные изображения из бесплатных источников с указанием авторов.</p>
+      </article>
+      <article class="feature">
+        <span class="feature__badge">Для родителей</span>
+        <div class="feature__emoji">⌨️</div>
+        <h3 class="feature__title">Удобно за ноутбуком</h3>
+        <p class="feature__desc">Управление клавиатурой: папа работает, ребёнок смотрит слайд-шоу.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═════════ 8. FORMS ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">08 · Формы</div>
+    <div class="grid-2">
+      <label class="field">
+        <span class="field__label">Поиск животного</span>
+        <input class="input" type="text" placeholder="Введите название...">
+        <span class="field__hint">Например: лев, корова, попугай</span>
+      </label>
+      <label class="field">
+        <span class="field__label">Поле с ошибкой</span>
+        <input class="input input--error" type="text" value="некорректно">
+        <span class="field__error">Проверьте правильность написания</span>
+      </label>
+      <label class="field">
+        <span class="field__label">Отключено</span>
+        <input class="input" value="Недоступно" disabled>
+      </label>
+      <label class="field">
+        <span class="field__label">Комментарий</span>
+        <textarea class="input textarea" placeholder="Ваш отзыв..."></textarea>
+      </label>
+    </div>
+
+    <div class="demo-label mt-8">Переключатели</div>
+    <div class="demo-row">
+      <label class="check"><input type="checkbox" checked> Checkbox активный</label>
+      <label class="check"><input type="checkbox"> Checkbox</label>
+      <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+      <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+    </div>
+  </section>
+
+  <!-- ═════════ 9. TABS ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">09 · Табы</div>
+    <div class="tabs">
+      <button class="tabs__item is-active">Все животные</button>
+      <button class="tabs__item">Со звуком</button>
+      <button class="tabs__item">Без звука</button>
+      <button class="tabs__item">Избранное</button>
+    </div>
+  </section>
+
+  <!-- ═════════ 10. ACCORDION ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">10 · Аккордеон (FAQ в разделе «О приложении»)</div>
+
+    <button class="accordion is-open" style="display:block;width:100%;text-align:left">
+      <div class="accordion__head">
+        <h3 class="accordion__title">Как добавить приложение на главный экран?</h3>
+        <svg class="accordion__icon" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="accordion__body">
+        На iPhone: Share → «На экран Домой». На Android: меню браузера → «Установить приложение». После этого приложение откроется как обычное — без адресной строки.
+      </div>
+    </button>
+
+    <button class="accordion" style="display:block;width:100%;text-align:left">
+      <div class="accordion__head">
+        <h3 class="accordion__title">Работает ли без интернета?</h3>
+        <svg class="accordion__icon" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="accordion__body">
+        Да! После первого посещения приложение сохраняется в кеш браузера. В настройках есть кнопка «Скачать всё для офлайна» — она загрузит все фото и звуки заранее.
+      </div>
+    </button>
+
+    <button class="accordion" style="display:block;width:100%;text-align:left">
+      <div class="accordion__head">
+        <h3 class="accordion__title">Откуда взяты фото и звуки?</h3>
+        <svg class="accordion__icon" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="accordion__body">
+        Все материалы — из открытых источников с лицензией CC0 или CC-BY: Pixabay, Pexels, Freesound, Wikimedia Commons. Авторство указано в разделе «Источники».
+      </div>
+    </button>
+  </section>
+
+  <!-- ═════════ 11. AVATAR / TOOLTIP / TOAST / SKELETON ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">11 · Служебные элементы</div>
+
+    <div class="demo-row mb-8">
+      <span class="avatar avatar--s">М</span>
+      <span class="avatar">А</span>
+      <span class="avatar avatar--l">👨‍💻</span>
+
+      <span class="tooltip">
+        <button class="btn btn--s btn--outline">Наведи</button>
+        <span class="tooltip__text">Подсказка с ограниченной шириной до 240px</span>
+      </span>
+
+      <div class="toast">
+        <span class="toast__icon">✓</span>
+        Настройки сохранены
+      </div>
+    </div>
+
+    <div class="demo-label">Skeleton (загрузка)</div>
+    <div style="max-width:400px">
+      <div class="skeleton skeleton--img"></div>
+      <div class="skeleton skeleton--title mt-4"></div>
+      <div class="skeleton skeleton--text"></div>
+      <div class="skeleton skeleton--text" style="width:70%"></div>
+    </div>
+  </section>
+
+  <!-- ═════════ 12. KEYBOARD CHEATSHEET ═════════ -->
+  <section class="demo-block">
+    <div class="demo-label">12 · Шпаргалка клавиш</div>
+    <div class="card card--soft">
+      <h4 class="h4 mb-4">Горячие клавиши</h4>
+      <div class="col col--s">
+        <div class="row row--btw"><span class="t-muted">Следующее животное</span><code>→ · D · Space</code></div>
+        <div class="row row--btw"><span class="t-muted">Предыдущее</span><code>← · A</code></div>
+        <div class="row row--btw"><span class="t-muted">Проиграть звук</span><code>Enter · R</code></div>
+        <div class="row row--btw"><span class="t-muted">Mute / Unmute</span><code>M</code></div>
+        <div class="row row--btw"><span class="t-muted">Громкость ±</span><code>+ / −</code></div>
+        <div class="row row--btw"><span class="t-muted">Настройки</span><code>S</code></div>
+        <div class="row row--btw"><span class="t-muted">Полный экран</span><code>F</code></div>
+        <div class="row row--btw"><span class="t-muted">Показать эту шпаргалку</span><code>? · H</code></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="section--s" style="text-align:center;color:var(--c-text-dim);padding-bottom:var(--sp-10)">
+  <p class="t-small">UI Kit · Кто так говорит? · v1.0</p>
+</footer>
+
+<script>
+// Переключатель акцента
+document.getElementById('palette').addEventListener('click', e => {
+  const dot = e.target.closest('.palette__dot');
+  if (!dot) return;
+  document.body.dataset.accent = dot.dataset.accent;
+  document.querySelectorAll('.palette__dot').forEach(d => d.classList.toggle('is-active', d === dot));
+});
+
+// Переключатель темы
+document.getElementById('themeBtn').addEventListener('click', e => {
+  const current = document.documentElement.dataset.theme;
+  if (current === 'dark') {
+    document.documentElement.removeAttribute('data-theme');
+    e.currentTarget.textContent = '🌙';
+  } else {
+    document.documentElement.dataset.theme = 'dark';
+    e.currentTarget.textContent = '☀️';
+  }
+});
+
+// Аккордеоны
+document.querySelectorAll('.accordion').forEach(acc => {
+  acc.addEventListener('click', () => acc.classList.toggle('is-open'));
+});
+</script>
+
+</body>
+</html>

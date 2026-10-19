@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Concepts — Кто так говорит?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#fff;overflow-x:hidden}
+
+/* ============== TOP NAV ============== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);padding:12px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav h1{font-family:'Space Grotesk';font-size:16px;font-weight:700;margin-right:auto;letter-spacing:-.02em}
+.nav h1 span{opacity:.4;font-weight:400}
+.tab{padding:8px 14px;border:1px solid rgba(255,255,255,.1);border-radius:100px;background:transparent;color:rgba(255,255,255,.6);cursor:pointer;font-size:12px;font-weight:500;transition:all .2s;font-family:inherit}
+.tab:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.tab.active{background:#fff;color:#000;border-color:#fff}
+
+/* ============== CONCEPT BASE ============== */
+.concept{display:none;min-height:100vh;padding-top:60px}
+.concept.active{display:block}
+
+.concept-header{padding:40px 24px 24px;max-width:1400px;margin:0 auto;text-align:center}
+.concept-header .num{font-family:'Space Grotesk';font-size:14px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase}
+.concept-header h2{font-family:'Fraunces';font-size:42px;font-weight:700;margin:8px 0 12px;letter-spacing:-.02em}
+.concept-header p{font-size:15px;color:rgba(255,255,255,.6);max-width:560px;margin:0 auto;line-height:1.6}
+.concept-header .refs{margin-top:12px;font-size:12px;color:rgba(255,255,255,.4)}
+.concept-header .refs b{color:rgba(255,255,255,.7)}
+
+/* =====================================================
+   CONCEPT 1: IMMERSIVE FULLSCREEN
+   ===================================================== */
+.c1-stage{position:relative;max-width:500px;margin:40px auto 80px;height:720px;border-radius:32px;overflow:hidden;background:#000;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+.c1-photo{position:absolute;inset:0;background:linear-gradient(180deg,#4a2d1a 0%,#8b5a3c 40%,#c69872 100%);display:flex;align-items:center;justify-content:center;font-size:280px;filter:saturate(1.1)}
+.c1-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 25%,transparent 55%,rgba(0,0,0,.85) 100%)}
+.c1-top{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.c1-category{background:rgba(255,255,255,.15);backdrop-filter:blur(20px);padding:8px 16px;border-radius:100px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.2)}
+.c1-settings{width:40px;height:40px;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-size:16px}
+.c1-progress{position:absolute;top:70px;left:20px;right:20px;display:flex;gap:4px;z-index:2}
+.c1-progress-item{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.c1-progress-item.done{background:rgba(255,255,255,.9)}
+.c1-progress-item.current{background:rgba(255,255,255,.3)}
+.c1-progress-item.current::after{content:'';display:block;height:100%;width:60%;background:#fff;border-radius:2px;animation:fillProgress 8s linear infinite}
+@keyframes fillProgress{from{width:0}to{width:100%}}
+.c1-bottom{position:absolute;bottom:0;left:0;right:0;padding:32px 24px;z-index:2}
+.c1-name{font-family:'Fraunces';font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.c1-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px;margin-bottom:28px;font-weight:500}
+.c1-controls{display:flex;align-items:center;gap:16px}
+.c1-play{width:72px;height:72px;border-radius:50%;background:#fff;color:#000;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 10px 30px rgba(255,255,255,.3)}
+.c1-play:hover{transform:scale(1.08)}
+.c1-small{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+.c1-counter{margin-left:auto;font-family:'Space Grotesk';font-size:13px;font-weight:600;color:rgba(255,255,255,.6)}
+.c1-nav-hint{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);font-size:40px;z-index:2;pointer-events:none}
+.c1-nav-hint.left{left:16px}
+.c1-nav-hint.right{right:16px}
+
+/* =====================================================
+   CONCEPT 2: MAGAZINE LAYOUT
+   ===================================================== */
+.c2-wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px;color:#1a1a1a;background:#f5f1ea;border-radius:24px;min-height:720px}
+.c2-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:24px;border-bottom:1px solid rgba(0,0,0,.1);margin-bottom:40px}
+.c2-brand{font-family:'Fraunces';font-size:20px;font-weight:700;letter-spacing:-.02em}
+.c2-cat-nav{display:flex;gap:2px;background:rgba(0,0,0,.05);padding:4px;border-radius:12px}
+.c2-cat-nav button{padding:8px 14px;background:transparent;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#333;font-family:inherit}
+.c2-cat-nav button.active{background:#1a1a1a;color:#fff}
+.c2-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start}
+.c2-left{position:relative}
+.c2-issue{font-family:'Space Grotesk';font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#8b7355;margin-bottom:16px;font-weight:600}
+.c2-title{font-family:'Fraunces';font-size:92px;font-weight:900;line-height:.9;letter-spacing:-.04em;color:#1a1a1a;margin-bottom:20px}
+.c2-title em{font-style:italic;color:#8b5a3c;font-weight:600}
+.c2-lead{font-family:'Fraunces';font-size:19px;line-height:1.5;color:#4a4a4a;margin-bottom:32px;max-width:420px;font-weight:400}
+.c2-lead::first-letter{font-size:52px;float:left;font-weight:700;line-height:1;margin:4px 8px 0 0;color:#8b5a3c}
+.c2-meta{display:flex;gap:32px;padding:20px 0;border-top:1px solid rgba(0,0,0,.1);border-bottom:1px solid rgba(0,0,0,.1);margin-bottom:28px}
+.c2-meta-item .label{font-family:'Space Grotesk';font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:4px}
+.c2-meta-item .val{font-family:'Fraunces';font-size:17px;font-weight:700;color:#1a1a1a}
+.c2-actions{display:flex;align-items:center;gap:16px}
+.c2-play{display:flex;align-items:center;gap:14px;padding:16px 28px;background:#1a1a1a;color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.c2-play:hover{background:#8b5a3c}
+.c2-play .icon{width:28px;height:28px;background:#fff;color:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c2-nav-btns{display:flex;gap:8px}
+.c2-nav-btns button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(0,0,0,.15);background:transparent;cursor:pointer;font-size:18px;color:#1a1a1a}
+.c2-nav-btns button:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.c2-right{position:relative}
+.c2-photo{aspect-ratio:3/4;border-radius:4px;background:linear-gradient(135deg,#8b5a3c,#c69872);display:flex;align-items:center;justify-content:center;font-size:200px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.15)}
+.c2-photo-caption{position:absolute;bottom:16px;left:16px;right:16px;color:#fff;font-family:'Space Grotesk';font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.9}
+.c2-counter{position:absolute;top:-30px;right:0;font-family:'Fraunces';font-style:italic;font-size:14px;color:#8b7355}
+
+/* =====================================================
+   CONCEPT 3: ZEN MINIMAL
+   ===================================================== */
+.c3-wrap{min-height:720px;display:flex;flex-direction:column;background:#fafaf7;color:#1a1a1a;position:relative;border-radius:24px;overflow:hidden;max-width:1400px;margin:40px auto 80px;padding:60px 40px}
+.c3-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:80px}
+.c3-breadcrumb{font-family:'Space Grotesk';font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,.4);font-weight:500}
+.c3-breadcrumb b{color:#1a1a1a}
+.c3-counter{font-family:'Fraunces';font-size:14px;font-style:italic;color:rgba(0,0,0,.5)}
+.c3-stage{flex:1;display:flex;align-items:center;justify-content:center;gap:80px;flex-wrap:wrap}
+.c3-photo-wrap{position:relative}
+.c3-photo{width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#d4a574,#8b5a3c);display:flex;align-items:center;justify-content:center;font-size:200px;position:relative;overflow:hidden}
+.c3-photo::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 60px rgba(0,0,0,.2)}
+.c3-ring{position:absolute;inset:-20px;border-radius:50%;border:1px solid rgba(0,0,0,.08);pointer-events:none}
+.c3-ring.r2{inset:-40px;border-color:rgba(0,0,0,.05)}
+.c3-info{max-width:360px}
+.c3-tag{display:inline-block;font-family:'Space Grotesk';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,.5);margin-bottom:16px;padding:6px 12px;border:1px solid rgba(0,0,0,.1);border-radius:100px}
+.c3-name{font-family:'Fraunces';font-size:88px;font-weight:600;letter-spacing:-.04em;line-height:.95;margin-bottom:20px}
+.c3-desc{font-size:16px;line-height:1.6;color:rgba(0,0,0,.6);margin-bottom:40px}
+.c3-play-btn{display:inline-flex;align-items:center;gap:16px;padding:0;background:transparent;border:none;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.c3-play-circle{width:72px;height:72px;border-radius:50%;background:#1a1a1a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .3s}
+.c3-play-btn:hover .c3-play-circle{transform:scale(1.1)}
+.c3-play-label{font-family:'Fraunces';font-size:20px;font-weight:500}
+.c3-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:60px;padding-top:24px;border-top:1px solid rgba(0,0,0,.08)}
+.c3-nav{display:flex;gap:4px}
+.c3-nav button{width:44px;height:44px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:18px;color:#1a1a1a;transition:all .2s}
+.c3-nav button:hover{background:rgba(0,0,0,.05)}
+.c3-cats{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.c3-cat{padding:8px 14px;background:transparent;border:none;cursor:pointer;font-size:13px;color:rgba(0,0,0,.5);font-family:inherit;transition:color .2s;position:relative}
+.c3-cat:hover,.c3-cat.active{color:#1a1a1a}
+.c3-cat.active::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#8b5a3c;border-radius:50%}
+.c3-hint{font-family:'Space Grotesk';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,.3)}
+
+/* =====================================================
+   CONCEPT 4: DECK OF CARDS
+   ===================================================== */
+.c4-wrap{min-height:720px;background:linear-gradient(180deg,#1a1a2e 0%,#0f0f1e 100%);border-radius:24px;max-width:1400px;margin:40px auto 80px;padding:40px;position:relative;overflow:hidden}
+.c4-wrap::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,.2),transparent 70%);pointer-events:none}
+.c4-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;position:relative;z-index:2}
+.c4-logo{font-family:'Space Grotesk';font-size:18px;font-weight:700;color:#fff}
+.c4-logo span{color:#8b5cf6}
+.c4-cats{display:flex;gap:6px}
+.c4-cat{padding:8px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.7);font-family:inherit;backdrop-filter:blur(10px)}
+.c4-cat.active{background:linear-gradient(135deg,#8b5cf6,#ec4899);border-color:transparent;color:#fff}
+.c4-stage{display:flex;align-items:center;justify-content:center;min-height:500px;position:relative;perspective:1200px}
+.c4-deck{position:relative;width:340px;height:460px}
+.c4-card{position:absolute;inset:0;border-radius:28px;overflow:hidden;transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:grab}
+.c4-card:nth-child(1){transform:translateY(0) rotate(0deg) scale(1);z-index:3}
+.c4-card:nth-child(2){transform:translateY(16px) rotate(-3deg) scale(.95);z-index:2;opacity:.85}
+.c4-card:nth-child(3){transform:translateY(32px) rotate(3deg) scale(.9);z-index:1;opacity:.6}
+.c4-card-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:220px}
+.c4-card-bg.c1{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.c4-card-bg.c2{background:linear-gradient(135deg,#3b82f6,#8b5cf6)}
+.c4-card-bg.c3{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.c4-card-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.8) 100%)}
+.c4-card-info{position:absolute;bottom:0;left:0;right:0;padding:28px;color:#fff;z-index:2}
+.c4-card-tag{display:inline-block;padding:4px 10px;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);border-radius:100px;font-size:11px;font-weight:600;margin-bottom:12px;letter-spacing:.5px}
+.c4-card-name{font-family:'Fraunces';font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1;margin-bottom:6px}
+.c4-card-sub{font-size:13px;opacity:.8;margin-bottom:20px}
+.c4-card-play{width:56px;height:56px;border-radius:50%;background:#fff;color:#000;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.c4-side{display:flex;flex-direction:column;gap:12px;margin-left:40px;z-index:5}
+.c4-side-btn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.c4-side-btn:hover{background:rgba(255,255,255,.2);transform:scale(1.1)}
+.c4-side-btn.like{background:linear-gradient(135deg,#ec4899,#f43f5e);border:none}
+.c4-swipe-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.4);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-family:'Space Grotesk'}
+.c4-counter{position:absolute;top:20px;right:40px;color:rgba(255,255,255,.4);font-family:'Space Grotesk';font-size:13px;letter-spacing:1px}
+
+/* =====================================================
+   CONCEPT 5: DASHBOARD GRID
+   ===================================================== */
+.c5-wrap{min-height:720px;background:#0f0f0f;border-radius:24px;max-width:1400px;margin:40px auto 80px;padding:32px;color:#fff}
+.c5-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:24px;flex-wrap:wrap}
+.c5-title-block h3{font-family:'Fraunces';font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.c5-title-block p{font-size:13px;color:rgba(255,255,255,.5);margin-top:6px}
+.c5-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.c5-search{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;font-size:13px;color:rgba(255,255,255,.5)}
+.c5-cat-pill{padding:8px 14px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:100px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.7);font-family:inherit;transition:all .2s}
+.c5-cat-pill:hover{border-color:rgba(255,255,255,.3)}
+.c5-cat-pill.active{background:#fff;color:#000;border-color:#fff}
+.c5-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.c5-tile{aspect-ratio:1;border-radius:20px;overflow:hidden;position:relative;cursor:pointer;transition:all .3s;background:#1a1a1a}
+.c5-tile:hover{transform:translateY(-4px)}
+.c5-tile-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;transition:transform .4s}
+.c5-tile:hover .c5-tile-bg{transform:scale(1.1)}
+.c5-tile-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+.c5-tile-name{font-family:'Space Grotesk';font-size:16px;font-weight:700;margin-bottom:2px}
+.c5-tile-cat{font-size:11px;color:rgba(255,255,255,.6)}
+.c5-tile-play{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.c5-tile:hover .c5-tile-play{opacity:1}
+.c5-tile.featured{grid-column:span 2;grid-row:span 2}
+.c5-tile.featured .c5-tile-bg{font-size:200px}
+.c5-tile.featured .c5-tile-name{font-family:'Fraunces';font-size:40px;font-weight:700;letter-spacing:-.02em}
+.c5-tile.featured .c5-tile-cat{font-size:14px}
+.c5-tile.featured .c5-tile-play{width:52px;height:52px;font-size:20px;opacity:1;background:#fff;color:#000}
+.c5-tile.silent::before{content:'🔇';position:absolute;top:12px;left:12px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:2}
+.c5-bg-1{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.c5-bg-2{background:linear-gradient(135deg,#3b82f6,#8b5cf6)}
+.c5-bg-3{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.c5-bg-4{background:linear-gradient(135deg,#ec4899,#f43f5e)}
+.c5-bg-5{background:linear-gradient(135deg,#8b5a3c,#c69872)}
+.c5-bg-6{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+.c5-bg-7{background:linear-gradient(135deg,#14b8a6,#06b6d4)}
+.c5-bg-8{background:linear-gradient(135deg,#eab308,#f59e0b)}
+.c5-bg-9{background:linear-gradient(135deg,#64748b,#94a3b8)}
+
+/* ============== SUMMARY ============== */
+.summary{max-width:1200px;margin:40px auto 100px;padding:0 24px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:40px}
+.summary-card{padding:24px;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:20px}
+.summary-card .n{font-family:'Space Grotesk';font-size:12px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:1px}
+.summary-card h4{font-family:'Fraunces';font-size:24px;margin:8px 0 12px;letter-spacing:-.02em}
+.summary-card .desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:16px}
+.summary-card .pros,.summary-card .cons{display:flex;gap:8px;font-size:12px;align-items:flex-start;margin-bottom:6px;line-height:1.5}
+.summary-card .pros{color:#10b981}
+.summary-card .cons{color:#ef4444}
+.summary-rec{padding:28px;background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(236,72,153,.1));border:1px solid rgba(139,92,246,.3);border-radius:20px;font-size:14px;line-height:1.7}
+.summary-rec b{color:#c4b5fd}
+
+@media (max-width:768px){
+  .c2-grid{grid-template-columns:1fr}
+  .c2-title{font-size:60px}
+  .c3-stage{flex-direction:column;gap:40px}
+  .c3-name{font-size:60px}
+  .c4-side{flex-direction:row;margin-left:0;margin-top:24px}
+  .c5-tile.featured{grid-column:span 2;grid-row:span 1}
+  .c1-stage{height:640px}
+  .c1-name{font-size:44px}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <h1>🐾 UI Concepts <span>— Кто так говорит?</span></h1>
+  <button class="tab active" onclick="show(1)">1. Immersive</button>
+  <button class="tab" onclick="show(2)">2. Magazine</button>
+  <button class="tab" onclick="show(3)">3. Zen</button>
+  <button class="tab" onclick="show(4)">4. Deck</button>
+  <button class="tab" onclick="show(5)">5. Grid</button>
+  <button class="tab" onclick="show(0)">📊 Итоги</button>
+</nav>
+
+<!-- ============== CONCEPT 1: IMMERSIVE ============== -->
+<section class="concept active" id="c1">
+  <div class="concept-header">
+    <div class="num">Concept 01</div>
+    <h2>Immersive Fullscreen</h2>
+    <p>Фото животного занимает весь экран. Интерфейс — минимальный оверлей поверх. Полное погружение, визуальный акцент на животном.</p>
+    <div class="refs">Вдохновение: <b>Instagram Stories</b>, <b>Apple TV</b>, <b>Netflix</b></div>
+  </div>
+
+  <div class="c1-stage">
+    <div class="c1-photo">🦁</div>
+    <div class="c1-nav-hint left">‹</div>
+    <div class="c1-nav-hint right">›</div>
+    <div class="c1-top">
+      <div class="c1-category">🦁 Саванна</div>
+      <div class="c1-settings">⚙</div>
+    </div>
+    <div class="c1-progress">
+      <div class="c1-progress-item done"></div>
+      <div class="c1-progress-item done"></div>
+      <div class="c1-progress-item current"></div>
+      <div class="c1-progress-item"></div>
+      <div class="c1-progress-item"></div>
+      <div class="c1-progress-item"></div>
+      <div class="c1-progress-item"></div>
+      <div class="c1-progress-item"></div>
+      <div class="c1-progress-item"></div>
+    </div>
+    <div class="c1-bottom">
+      <div class="c1-name">Лев</div>
+      <div class="c1-sub">Млекопитающее · Африка</div>
+      <div class="c1-controls">
+        <button class="c1-play">🔊</button>
+        <button class="c1-small">↻</button>
+        <div class="c1-counter">03 / 09</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONCEPT 2: MAGAZINE ============== -->
+<section class="concept" id="c2">
+  <div class="concept-header">
+    <div class="num">Concept 02</div>
+    <h2>Magazine Layout</h2>
+    <p>Асимметричная сетка, крупная типографика с засечками, фото справа, текст слева. Как разворот в National Geographic или The New Yorker.</p>
+    <div class="refs">Вдохновение: <b>National Geographic</b>, <b>The New Yorker</b>, <b>Kinfolk</b></div>
+  </div>
+
+  <div class="c2-wrap">
+    <div class="c2-top">
+      <div class="c2-brand">Кто так говорит?</div>
+      <div class="c2-cat-nav">
+        <button>Все</button>
+        <button class="active">Саванна</button>
+        <button>Ферма</button>
+        <button>Лес</button>
+        <button>Птицы</button>
+      </div>
+    </div>
+    <div class="c2-grid">
+      <div class="c2-left">
+        <div class="c2-issue">Выпуск № 03 · Саванна</div>
+        <h3 class="c2-title">Царь<br><em>зверей</em></h3>
+        <p class="c2-lead">Африканский лев — один из крупнейших хищников семейства кошачьих. Его рык слышен за восемь километров.</p>
+        <div class="c2-meta">
+          <div class="c2-meta-item">
+            <div class="label">Класс</div>
+            <div class="val">Млекопитающее</div>
+          </div>
+          <div class="c2-meta-item">
+            <div class="label">Среда</div>
+            <div class="val">Саванна</div>
+          </div>
+          <div class="c2-meta-item">
+            <div class="label">Звук</div>
+            <div class="val">Рык</div>
+          </div>
+        </div>
+        <div class="c2-actions">
+          <button class="c2-play">
+            <span class="icon">▶</span>
+            Послушать голос
+          </button>
+          <div class="c2-nav-btns">
+            <button>‹</button>
+            <button>›</button>
+          </div>
+        </div>
+      </div>
+      <div class="c2-right">
+        <div class="c2-counter">— 03 / 09 —</div>
+        <div class="c2-photo">
+          🦁
+          <div class="c2-photo-caption">Panthera leo · Фото: Wikimedia Commons</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONCEPT 3: ZEN MINIMAL ============== -->
+<section class="concept" id="c3">
+  <div class="concept-header">
+    <div class="num">Concept 03</div>
+    <h2>Zen Minimal</h2>
+    <p>Один объект на экране в круглой рамке, огромное свободное пространство, медитативность. Акцент на дыхании и спокойствии. Для фокуса малыша.</p>
+    <div class="refs">Вдохновение: <b>Arc Browser</b>, <b>Linear</b>, <b>Headspace</b>, <b>Things 3</b></div>
+  </div>
+
+  <div class="c3-wrap">
+    <div class="c3-top">
+      <div class="c3-breadcrumb">Саванна <b>· Лев</b></div>
+      <div class="c3-counter">третий из девяти</div>
+    </div>
+    <div class="c3-stage">
+      <div class="c3-photo-wrap">
+        <div class="c3-ring r2"></div>
+        <div class="c3-ring"></div>
+        <div class="c3-photo">🦁</div>
+      </div>
+      <div class="c3-info">
+        <span class="c3-tag">Млекопитающее</span>
+        <h3 class="c3-name">Лев</h3>
+        <p class="c3-desc">Крупный хищник, обитающий в саваннах Африки. Его рык — один из самых громких звуков в природе.</p>
+        <button class="c3-play-btn">
+          <span class="c3-play-circle">▶</span>
+          <span class="c3-play-label">Послушать</span>
+        </button>
+      </div>
+    </div>
+    <div class="c3-bottom">
+      <div class="c3-nav">
+        <button>‹</button>
+        <button>›</button>
+      </div>
+      <div class="c3-cats">
+        <button class="c3-cat">Все</button>
+        <button class="c3-cat active">Саванна</button>
+        <button class="c3-cat">Ферма</button>
+        <button class="c3-cat">Лес</button>
+        <button class="c3-cat">Питомцы</button>
+        <button class="c3-cat">Птицы</button>
+        <button class="c3-cat">Море</button>
+      </div>
+      <div class="c3-hint">Space · Play</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONCEPT 4: DECK OF CARDS ============== -->
+<section class="concept" id="c4">
+  <div class="concept-header">
+    <div class="num">Concept 04</div>
+    <h2>Deck of Cards</h2>
+    <p>Стопка карточек с 3D-эффектом. Видно, что сзади ещё есть животные. Свайп = следующее. Тактильно и игриво, но не инфантильно.</p>
+    <div class="refs">Вдохновение: <b>Tinder</b>, <b>Bumble</b>, <b>Apple Wallet</b></div>
+  </div>
+
+  <div class="c4-wrap">
+    <div class="c4-top">
+      <div class="c4-logo">Голоса<span>.</span></div>
+      <div class="c4-cats">
+        <button class="c4-cat">Все</button>
+        <button class="c4-cat active">Саванна</button>
+        <button class="c4-cat">Ферма</button>
+        <button class="c4-cat">Лес</button>
+        <button class="c4-cat">⚙</button>
+      </div>
+    </div>
+    <div class="c4-counter">03 / 09</div>
+    <div class="c4-stage">
+      <div class="c4-deck">
+        <div class="c4-card">
+          <div class="c4-card-bg c1">🦁</div>
+          <div class="c4-card-overlay"></div>
+          <div class="c4-card-info">
+            <span class="c4-card-tag">Млекопитающее</span>
+            <div class="c4-card-name">Лев</div>
+            <div class="c4-card-sub">Африка · Саванна</div>
+            <button class="c4-card-play">🔊</button>
+          </div>
+        </div>
+        <div class="c4-card">
+          <div class="c4-card-bg c2">🐘</div>
+          <div class="c4-card-overlay"></div>
+          <div class="c4-card-info">
+            <span class="c4-card-tag">Млекопитающее</span>
+            <div class="c4-card-name">Слон</div>
+            <div class="c4-card-sub">Африка · Саванна</div>
+          </div>
+        </div>
+        <div class="c4-card">
+          <div class="c4-card-bg c3">🦒</div>
+          <div class="c4-card-overlay"></div>
+          <div class="c4-card-info">
+            <span class="c4-card-tag">Млекопитающее</span>
+            <div class="c4-card-name">Жираф</div>
+            <div class="c4-card-sub">Африка · Саванна</div>
+          </div>
+        </div>
+      </div>
+      <div class="c4-side">
+        <button class="c4-side-btn">‹</button>
+        <button class="c4-side-btn like">🔊</button>
+        <button class="c4-side-btn">›</button>
+      </div>
+    </div>
+    <div class="c4-swipe-hint">← Свайп · или стрелки →</div>
+  </div>
+</section>
+
+<!-- ============== CONCEPT 5: DASHBOARD GRID ============== -->
+<section class="concept" id="c5">
+  <div class="concept-header">
+    <div class="num">Concept 05</div>
+    <h2>Dashboard Grid</h2>
+    <p>Все животные видны сразу плиткой разного размера. Клик открывает карточку. Родитель и ребёнок вместе выбирают, что послушать. Как Pinterest или Dribbble.</p>
+    <div class="refs">Вдохновение: <b>Pinterest</b>, <b>Dribbble</b>, <b>Apple Music</b></div>
+  </div>
+
+  <div class="c5-wrap">
+    <div class="c5-top">
+      <div class="c5-title-block">
+        <h3>Саванна</h3>
+        <p>9 животных · 8 со звуком</p>
+      </div>
+      <div class="c5-filters">
+        <div class="c5-search">🔍 Поиск</div>
+        <button class="c5-cat-pill">Все</button>
+        <button class="c5-cat-pill active">Саванна</button>
+        <button class="c5-cat-pill">Ферма</button>
+        <button class="c5-cat-pill">Лес</button>
+        <button class="c5-cat-pill">⚙</button>
+      </div>
+    </div>
+    <div class="c5-grid">
+      <div class="c5-tile featured">
+        <div class="c5-tile-bg c5-bg-1">🦁</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Лев</div>
+          <div class="c5-tile-cat">Царь зверей · Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-2">🐘</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Слон</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-3">🦒</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Жираф</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-4">🦓</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Зебра</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-5">🦏</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Носорог</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-6">🦛</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Бегемот</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-7">🐆</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Леопард</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+      <div class="c5-tile silent">
+        <div class="c5-tile-bg c5-bg-9">🦋</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Бабочка</div>
+          <div class="c5-tile-cat">Без звука</div>
+        </div>
+      </div>
+      <div class="c5-tile">
+        <div class="c5-tile-bg c5-bg-8">🐒</div>
+        <div class="c5-tile-overlay">
+          <div class="c5-tile-name">Обезьяна</div>
+          <div class="c5-tile-cat">Африка</div>
+        </div>
+        <button class="c5-tile-play">▶</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SUMMARY ============== -->
+<section class="concept" id="c0">
+  <div class="concept-header">
+    <div class="num">Summary</div>
+    <h2>Сравнение концептов</h2>
+    <p>Каждый концепт — не просто другой дизайн, а другой подход к взаимодействию.</p>
+  </div>
+
+  <div class="summary">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="n">CONCEPT 01</div>
+        <h4>Immersive Fullscreen</h4>
+        <div class="desc">Фото во весь экран, UI поверх. Как Stories.</div>
+        <div class="pros">✓ Максимум визуала</div>
+        <div class="pros">✓ Отлично на телефоне</div>
+        <div class="cons">✗ Меньше контроля</div>
+        <div class="cons">✗ Нужны очень качественные фото</div>
+      </div>
+      <div class="summary-card">
+        <div class="n">CONCEPT 02</div>
+        <h4>Magazine Layout</h4>
+        <div class="desc">Асимметрия, засечки, журнальная типографика.</div>
+        <div class="pros">✓ Уникальный, запомнится</div>
+        <div class="pros">✓ Эффектно в портфолио</div>
+        <div class="cons">✗ Сложнее сделать адаптив</div>
+        <div class="cons">✗ Больше кода</div>
+      </div>
+      <div class="summary-card">
+        <div class="n">CONCEPT 03</div>
+        <h4>Zen Minimal</h4>
+        <div class="desc">Один объект, воздух, спокойствие.</div>
+        <div class="pros">✓ Идеально для малышей (фокус)</div>
+        <div class="pros">✓ Соответствует вашему вкусу</div>
+        <div class="pros">✓ Проще реализовать</div>
+        <div class="cons">✗ Может показаться "пустым"</div>
+      </div>
+      <div class="summary-card">
+        <div class="n">CONCEPT 04</div>
+        <h4>Deck of Cards</h4>
+        <div class="desc">3D стопка, свайп, тактильность.</div>
+        <div class="pros">✓ Весело для ребёнка</div>
+        <div class="pros">✓ Естественные жесты</div>
+        <div class="cons">✗ Не очень "взрослый"</div>
+        <div class="cons">✗ Сложнее на десктопе</div>
+      </div>
+      <div class="summary-card">
+        <div class="n">CONCEPT 05</div>
+        <h4>Dashboard Grid</h4>
+        <div class="desc">Всё видно сразу, клик открывает.</div>
+        <div class="pros">✓ Родитель быстро находит</div>
+        <div class="pros">✓ Можно комбинировать с другими</div>
+        <div class="cons">✗ Нужен отдельный экран для play</div>
+        <div class="cons">✗ Больше кликов</div>
+      </div>
+    </div>
+
+    <div class="summary-rec">
+      <b>💡 Мой совет для портфолио:</b><br><br>
+      Самые сильные — <b>Concept 03 (Zen Minimal)</b> и <b>Concept 02 (Magazine)</b>. Zen идеален по UX для вашей задачи и соответствует референсам (Notion, Untitled). Magazine — вау-эффект для портфолио, но требует больше работы.<br><br>
+      <b>Гибридный вариант:</b> основной экран как <b>Zen (03)</b>, а в настройках/категориях — переключатель на <b>Grid (05)</b>, чтобы быстро находить нужное животное. Это даст и красоту, и функциональность.<br><br>
+      Или скажите «Concept X, но с элементом Y из Z» — я соберу финальный микс.
+    </div>
+  </div>
+</section>
+
+<script>
+function show(n){
+  document.querySelectorAll('.concept').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('c'+n).classList.add('active');
+  const tabs=document.querySelectorAll('.tab');
+  const idx=n===0?tabs.length-1:n-1;
+  if(tabs[idx])tabs[idx].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='5')show(parseInt(e.key));
+  if(e.key==='0')show(0);
+});
+</script>
+</body>
+</html>

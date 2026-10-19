@@ -1,0 +1,108 @@
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Кто так говорит?
+   HSL S=100% для акцентов (чистые, насыщенные цвета)
+   ══════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+@source inline("flex items-center justify-center flex-col flex-wrap gap-2 gap-3 gap-4 gap-5 gap-6");
+@source "../../**/*.{html,js,jsx,ts,tsx}";
+
+/* ─── Tailwind v4 Theme ─── */
+@theme {
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-brand: hsl(10, 100%, 61%);
+  --color-brand-hover: hsl(10, 100%, 64%);
+  --color-brand-active: hsl(10, 100%, 55%);
+
+  --color-bg: #FFFFFF;
+  --color-bg-soft: #F2F6FA;
+  --color-bg-mute: #E8EDF3;
+  --color-bg-dark: #384562;
+
+  --color-text: #3C4760;
+  --color-text-strong: #1F2740;
+  --color-text-muted: rgba(60, 71, 96, .70);
+  --color-text-dim: rgba(60, 71, 96, .45);
+
+  --color-border: rgba(56, 69, 98, .12);
+  --color-border-strong: rgba(56, 69, 98, .22);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 40px;
+  --radius-pill: 999px;
+}
+
+/* ─── CSS Custom Properties (для компонентов) ─── */
+:root {
+  /* Акцент — переопределяется через [data-accent] */
+  --c-brand: hsl(10, 100%, 61%);
+  --c-brand-hover: hsl(10, 100%, 64%);
+  --c-brand-active: hsl(10, 100%, 55%);
+  --c-brand-soft: hsla(10, 100%, 61%, .08);
+  --c-brand-mid: hsla(10, 100%, 61%, .18);
+  --c-brand-shadow: hsla(10, 100%, 61%, .25);
+
+  /* Фон */
+  --c-bg: #FFFFFF;
+  --c-bg-soft: #F2F6FA;
+  --c-bg-mute: #E8EDF3;
+  --c-bg-dark: #384562;
+  --c-bg-dark-hover: #2E3A52;
+
+  /* Текст */
+  --c-text: #3C4760;
+  --c-text-strong: #1F2740;
+  --c-text-muted: rgba(60, 71, 96, .70);
+  --c-text-dim: rgba(60, 71, 96, .45);
+
+  /* Границы */
+  --c-border: rgba(56, 69, 98, .12);
+  --c-border-strong: rgba(56, 69, 98, .22);
+
+  /* Тени */
+  --shadow-s: 0 1px 2px rgba(26, 33, 61, .08);
+  --shadow-m: 0 4px 20px rgba(56, 69, 98, .10);
+  --shadow-l: 0 13px 40px rgba(48, 76, 135, .18);
+  --shadow-brand: 0 8px 24px var(--c-brand-shadow);
+
+  /* Движение */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-fast: .15s;
+  --dur: .25s;
+  --dur-slow: .4s;
+}
+
+/* ─── Акцентные палитры HSL S=100% ─── */
+[data-accent="red"]     { --c-brand: hsl(0, 100%, 55%);   --c-brand-hover: hsl(0, 100%, 60%);   --c-brand-active: hsl(0, 100%, 48%);   --c-brand-soft: hsla(0, 100%, 55%, .08);   --c-brand-mid: hsla(0, 100%, 55%, .18);   --c-brand-shadow: hsla(0, 100%, 55%, .30); }
+[data-accent="orange"]  { --c-brand: hsl(25, 100%, 55%);  --c-brand-hover: hsl(25, 100%, 60%);  --c-brand-active: hsl(25, 100%, 48%);  --c-brand-soft: hsla(25, 100%, 55%, .08);  --c-brand-mid: hsla(25, 100%, 55%, .18);  --c-brand-shadow: hsla(25, 100%, 55%, .30); }
+[data-accent="amber"]   { --c-brand: hsl(38, 100%, 50%);  --c-brand-hover: hsl(38, 100%, 55%);  --c-brand-active: hsl(38, 100%, 44%);  --c-brand-soft: hsla(38, 100%, 50%, .08);  --c-brand-mid: hsla(38, 100%, 50%, .18);  --c-brand-shadow: hsla(38, 100%, 50%, .30); }
+[data-accent="green"]   { --c-brand: hsl(145, 100%, 42%); --c-brand-hover: hsl(145, 100%, 47%); --c-brand-active: hsl(145, 100%, 36%); --c-brand-soft: hsla(145, 100%, 42%, .08); --c-brand-mid: hsla(145, 100%, 42%, .18); --c-brand-shadow: hsla(145, 100%, 42%, .30); }
+[data-accent="teal"]    { --c-brand: hsl(175, 100%, 40%); --c-brand-hover: hsl(175, 100%, 45%); --c-brand-active: hsl(175, 100%, 34%); --c-brand-soft: hsla(175, 100%, 40%, .08); --c-brand-mid: hsla(175, 100%, 40%, .18); --c-brand-shadow: hsla(175, 100%, 40%, .30); }
+[data-accent="blue"]    { --c-brand: hsl(215, 100%, 55%); --c-brand-hover: hsl(215, 100%, 60%); --c-brand-active: hsl(215, 100%, 48%); --c-brand-soft: hsla(215, 100%, 55%, .08); --c-brand-mid: hsla(215, 100%, 55%, .18); --c-brand-shadow: hsla(215, 100%, 55%, .30); }
+[data-accent="indigo"]  { --c-brand: hsl(240, 100%, 65%); --c-brand-hover: hsl(240, 100%, 70%); --c-brand-active: hsl(240, 100%, 58%); --c-brand-soft: hsla(240, 100%, 65%, .08); --c-brand-mid: hsla(240, 100%, 65%, .18); --c-brand-shadow: hsla(240, 100%, 65%, .30); }
+[data-accent="purple"]  { --c-brand: hsl(270, 100%, 60%); --c-brand-hover: hsl(270, 100%, 65%); --c-brand-active: hsl(270, 100%, 53%); --c-brand-soft: hsla(270, 100%, 60%, .08); --c-brand-mid: hsla(270, 100%, 60%, .18); --c-brand-shadow: hsla(270, 100%, 60%, .30); }
+[data-accent="pink"]    { --c-brand: hsl(330, 100%, 60%); --c-brand-hover: hsl(330, 100%, 65%); --c-brand-active: hsl(330, 100%, 53%); --c-brand-soft: hsla(330, 100%, 60%, .08); --c-brand-mid: hsla(330, 100%, 60%, .18); --c-brand-shadow: hsla(330, 100%, 60%, .30); }
+
+/* ─── Тёмная тема ─── */
+[data-theme="dark"] {
+  --c-bg: #141A28;
+  --c-bg-soft: #1E2638;
+  --c-bg-mute: #262F44;
+  --c-bg-dark: #0A0F1C;
+  --c-bg-dark-hover: #141A28;
+  --c-text: #D8DEEA;
+  --c-text-strong: #FFFFFF;
+  --c-text-muted: rgba(216, 222, 234, .70);
+  --c-text-dim: rgba(216, 222, 234, .40);
+  --c-border: rgba(255, 255, 255, .08);
+  --c-border-strong: rgba(255, 255, 255, .15);
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-m: 0 4px 20px rgba(0, 0, 0, .25);
+  --shadow-l: 0 13px 40px rgba(0, 0, 0, .40);
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "pets",
+    "name": "Питомцы",
+    "emoji": "🐱",
+    "description": "Домашние любимцы"
+  },
+  {
+    "id": "farm",
+    "name": "Ферма",
+    "emoji": "🐄",
+    "description": "Домашние и фермерские животные"
+  },
+  {
+    "id": "africa",
+    "name": "Саванна",
+    "emoji": "🦁",
+    "description": "Животные африканской саванны"
+  },
+  {
+    "id": "forest",
+    "name": "Лес",
+    "emoji": "🌲",
+    "description": "Обитатели леса"
+  },
+  {
+    "id": "birds",
+    "name": "Птицы",
+    "emoji": "🦉",
+    "description": "Пернатые друзья"
+  },
+  {
+    "id": "sea",
+    "name": "Море",
+    "emoji": "🐬",
+    "description": "Морские обитатели"
+  },
+  {
+    "id": "insects",
+    "name": "Насекомые",
+    "emoji": "🐝",
+    "description": "Маленькие, но важные"
+  }
+]

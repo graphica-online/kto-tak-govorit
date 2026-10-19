@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI-Kit Showcase — Кто так говорит?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-ui: 'Inter', -apple-system, sans-serif;
+  --font-display: 'Nunito', 'Inter', sans-serif;
+  --transition: 200ms ease;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f5f5f5;
+  color: #1a1a1a;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+body.dark {
+  background: #111111;
+  color: #e5e5e5;
+}
+
+/* ============================================
+   TOP NAVIGATION (between variants)
+   ============================================ */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e5e5;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+body.dark .top-bar {
+  background: rgba(17,17,17,0.9);
+  border-color: #333;
+}
+
+.top-bar h1 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-right: auto;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  transition: var(--transition);
+}
+
+body.dark .tab-btn {
+  background: #222;
+  border-color: #444;
+  color: #ccc;
+}
+
+.tab-btn:hover { background: #f0f0f0; }
+body.dark .tab-btn:hover { background: #333; }
+
+.tab-btn.active {
+  background: #1a1a1a;
+  color: white;
+  border-color: #1a1a1a;
+}
+
+body.dark .tab-btn.active {
+  background: #fff;
+  color: #111;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+body.dark .theme-toggle {
+  background: #222;
+  border-color: #444;
+}
+
+/* ============================================
+   VARIANT CONTAINER
+   ============================================ */
+.variant {
+  display: none;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.variant.active { display: block; }
+
+.variant-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.variant-header h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.variant-header p {
+  font-size: 15px;
+  opacity: 0.6;
+}
+
+.variant-header .tags {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.variant-header .tag {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Grid layout for elements */
+.elements-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .elements-grid { grid-template-columns: 1fr; }
+}
+
+.element-block {
+  padding: 24px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #e5e5e5;
+}
+
+body.dark .element-block {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+.element-block.full-width {
+  grid-column: 1 / -1;
+}
+
+.element-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.4;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* ============================================
+   VARIANT 1: NOTION CLEAN
+   ============================================ */
+.v1 { --accent: #2383E2; --accent-light: #E8F2FC; --accent-dark: #1B6EC2; --radius: 8px; }
+body.dark .v1 { --accent-light: #1a2d42; }
+
+.v1 .tag { background: var(--accent-light); color: var(--accent); }
+
+/* Animal Card */
+.v1 .animal-card {
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: white;
+  max-width: 400px;
+  margin: 0 auto;
+}
+body.dark .v1 .animal-card { background: #222; border-color: #333; }
+
+.v1 .animal-card .photo {
+  width: 100%;
+  height: 260px;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  position: relative;
+}
+
+.v1 .animal-card .card-body {
+  padding: 20px;
+}
+
+.v1 .animal-card .animal-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.v1 .animal-card .animal-info {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.v1 .animal-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v1 .play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.v1 .play-btn:hover { transform: scale(1.05); background: var(--accent-dark); }
+
+.v1 .counter {
+  font-size: 13px;
+  opacity: 0.4;
+  margin-left: auto;
+}
+
+/* Nav arrows */
+.v1 .nav-arrows {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.v1 .nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  background: white;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+body.dark .v1 .nav-btn { background: #222; border-color: #444; color: #ccc; }
+.v1 .nav-btn:hover { background: #f5f5f5; }
+body.dark .v1 .nav-btn:hover { background: #333; }
+
+/* Category selector */
+.v1 .category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.v1 .category-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: var(--transition);
+  font-family: var(--font-ui);
+}
+body.dark .v1 .category-chip { background: #222; border-color: #444; color: #ccc; }
+
+.v1 .category-chip:hover { background: #f5f5f5; }
+body.dark .v1 .category-chip:hover { background: #333; }
+
+.v1 .category-chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Settings */
+.v1 .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+body.dark .v1 .setting-row { border-color: #2a2a2a; }
+
+.v1 .setting-row:last-child { border: none; }
+
+.v1 .setting-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.v1 .setting-desc {
+  font-size: 12px;
+  opacity: 0.4;
+  margin-top: 2px;
+}
+
+/* Toggle */
+.toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: #ddd;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+body.dark .toggle { background: #444; }
+
+.toggle.on { background: var(--accent); }
+
+.toggle::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle.on::after { left: 22px; }
+
+/* Slider */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 120px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ddd;
+  outline: none;
+}
+body.dark .slider { background: #444; }
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.slider-val {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Buttons row */
+.buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: var(--transition);
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-secondary {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: var(--transition);
+}
+body.dark .btn-secondary { background: #222; border-color: #444; color: #ccc; }
+.btn-secondary:hover { background: #f5f5f5; }
+body.dark .btn-secondary:hover { background: #333; }
+
+.btn-ghost {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: var(--transition);
+}
+.btn-ghost:hover { background: var(--accent-light); }
+
+/* Color palette preview */
+.color-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.active { border-color: #1a1a1a; }
+body.dark .color-swatch.active { border-color: white; }
+
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* ============================================
+   VARIANT 2: SOFT WARM
+   ============================================ */
+.v2 { --accent: #F97316; --accent-light: #FFF3E8; --accent-dark: #E05E00; --radius: 16px; }
+body.dark .v2 { --accent-light: #2d1f0f; }
+
+.v2 .tag { background: var(--accent-light); color: var(--accent); }
+
+.v2 .animal-card {
+  border: none;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  max-width: 400px;
+  margin: 0 auto;
+}
+body.dark .v2 .animal-card { background: #1e1e1e; box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+
+.v2 .animal-card .photo {
+  width: 100%;
+  height: 260px;
+  background: linear-gradient(135deg, #fed7aa, #fff7ed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.v2 .animal-card .card-body { padding: 24px; }
+
+.v2 .animal-card .animal-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.v2 .animal-card .animal-info {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.v2 .animal-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v2 .play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+}
+.v2 .play-btn:hover { transform: scale(1.08); }
+
+.v2 .counter { font-size: 13px; opacity: 0.4; margin-left: auto; }
+
+.v2 .nav-arrows { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+
+.v2 .nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+body.dark .v2 .nav-btn { background: #2a2a2a; color: #ccc; }
+.v2 .nav-btn:hover { background: #eee; }
+body.dark .v2 .nav-btn:hover { background: #333; }
+
+.v2 .category-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.v2 .category-chip {
+  padding: 10px 18px;
+  border-radius: 100px;
+  border: none;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition);
+  font-family: var(--font-ui);
+}
+body.dark .v2 .category-chip { background: #2a2a2a; color: #ccc; }
+.v2 .category-chip:hover { background: #eee; }
+body.dark .v2 .category-chip:hover { background: #333; }
+
+.v2 .category-chip.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 12px rgba(249,115,22,0.3);
+}
+
+.v2 .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+body.dark .v2 .setting-row { border-color: #2a2a2a; }
+.v2 .setting-row:last-child { border: none; }
+.v2 .setting-label { font-size: 14px; font-weight: 500; }
+.v2 .setting-desc { font-size: 12px; opacity: 0.4; margin-top: 2px; }
+
+/* ============================================
+   VARIANT 3: UNTITLED UI
+   ============================================ */
+.v3 { --accent: #7C3AED; --accent-light: #F3EEFF; --accent-dark: #6025C0; --radius: 12px; }
+body.dark .v3 { --accent-light: #1f1530; }
+
+.v3 .tag { background: var(--accent-light); color: var(--accent); }
+
+.v3 .animal-card {
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  max-width: 400px;
+  margin: 0 auto;
+}
+body.dark .v3 .animal-card { background: #1c1c1c; border-color: #333; }
+
+.v3 .animal-card .photo {
+  width: 100%;
+  height: 260px;
+  background: linear-gradient(135deg, #e9d5ff, #f5f3ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+}
+
+.v3 .animal-card .card-body { padding: 20px; }
+
+.v3 .animal-card .animal-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.v3 .animal-card .animal-info {
+  font-size: 13px;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.v3 .animal-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v3 .play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.v3 .play-btn:hover { background: var(--accent-dark); }
+
+.v3 .counter { font-size: 13px; opacity: 0.4; margin-left: auto; font-weight: 500; }
+
+.v3 .nav-arrows { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+
+.v3 .nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  background: white;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+body.dark .v3 .nav-btn { background: #222; border-color: #444; color: #ccc; }
+.v3 .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.v3 .category-list { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.v3 .category-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: var(--transition);
+  font-family: var(--font-ui);
+}
+body.dark .v3 .category-chip { background: #222; border-color: #444; color: #ccc; }
+.v3 .category-chip:hover { border-color: var(--accent); }
+
+.v3 .category-chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.v3 .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+  transition: var(--transition);
+}
+.v3 .setting-row:hover { background: #fafafa; }
+body.dark .v3 .setting-row:hover { background: #222; }
+.v3 .setting-label { font-size: 14px; font-weight: 500; }
+.v3 .setting-desc { font-size: 12px; opacity: 0.4; margin-top: 2px; }
+
+/* ============================================
+   VARIANT 4: GLASSMORPHISM
+   ============================================ */
+.v4 { --accent: #10B981; --accent-light: #ECFDF5; --accent-dark: #059669; --radius: 20px; }
+body.dark .v4 { --accent-light: #0d2818; }
+
+.v4 .tag { background: var(--accent-light); color: var(--accent); }
+
+.v4 .animal-card {
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  max-width: 400px;
+  margin: 0 auto;
+}
+body.dark .v4 .animal-card {
+  background: rgba(30,30,30,0.7);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.v4 .animal-card .photo {
+  width: 100%;
+  height: 260px;
+  background: linear-gradient(135deg, #a7f3d0, #d1fae5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+}
+
+.v4 .animal-card .card-body { padding: 24px; }
+
+.v4 .animal-card .animal-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.v4 .animal-card .animal-info {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.v4 .animal-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v4 .play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 0 24px rgba(16,185,129,0.3);
+}
+.v4 .play-btn:hover { transform: scale(1.08); box-shadow: 0 0 32px rgba(16,185,129,0.5); }
+
+.v4 .counter { font-size: 13px; opacity: 0.4; margin-left: auto; }
+
+.v4 .nav-arrows { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+
+.v4 .nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+body.dark .v4 .nav-btn { background: rgba(50,50,50,0.5); border-color: rgba(255,255,255,0.1); color: #ccc; }
+.v4 .nav-btn:hover { background: rgba(255,255,255,0.8); }
+body.dark .v4 .nav-btn:hover { background: rgba(80,80,80,0.5); }
+
+.v4 .category-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.v4 .category-chip {
+  padding: 10px 18px;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 14px;
+  transition: var(--transition);
+  font-family: var(--font-ui);
+}
+body.dark .v4 .category-chip { background: rgba(50,50,50,0.5); border-color: rgba(255,255,255,0.1); color: #ccc; }
+.v4 .category-chip:hover { background: rgba(255,255,255,0.8); }
+body.dark .v4 .category-chip:hover { background: rgba(80,80,80,0.5); }
+
+.v4 .category-chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(16,185,129,0.3);
+}
+
+.v4 .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(4px);
+}
+body.dark .v4 .setting-row { background: rgba(50,50,50,0.3); }
+.v4 .setting-label { font-size: 14px; font-weight: 500; }
+.v4 .setting-desc { font-size: 12px; opacity: 0.4; margin-top: 2px; }
+
+/* ============================================
+   VARIANT 5: BOLD & PLAYFUL
+   ============================================ */
+.v5 { --accent: #E11D48; --accent-light: #FFF1F2; --accent-dark: #BE123C; --radius: 24px; }
+body.dark .v5 { --accent-light: #2d1015; }
+
+.v5 .tag { background: var(--accent-light); color: var(--accent); }
+
+.v5 .animal-card {
+  border: none;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  max-width: 420px;
+  margin: 0 auto;
+}
+body.dark .v5 .animal-card { background: #1e1e1e; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+
+.v5 .animal-card .photo {
+  width: 100%;
+  height: 280px;
+  background: linear-gradient(135deg, #fecdd3, #ffe4e6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 90px;
+}
+
+.v5 .animal-card .card-body { padding: 24px; }
+
+.v5 .animal-card .animal-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.v5 .animal-card .animal-info {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.v5 .animal-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.v5 .play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #F97316);
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(225,29,72,0.3);
+}
+.v5 .play-btn:hover { transform: scale(1.08) rotate(-3deg); }
+
+.v5 .counter { font-size: 14px; opacity: 0.4; margin-left: auto; font-weight: 700; }
+
+.v5 .nav-arrows { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+
+.v5 .nav-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 2px solid #eee;
+  background: white;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+body.dark .v5 .nav-btn { background: #2a2a2a; border-color: #444; color: #ccc; }
+.v5 .nav-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+
+.v5 .category-list { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.v5 .category-chip {
+  padding: 12px 20px;
+  border-radius: 100px;
+  border: 2px solid #eee;
+  background: white;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: var(--transition);
+  font-family: var(--font-ui);
+}
+body.dark .v5 .category-chip { background: #2a2a2a; border-color: #444; color: #ccc; }
+.v5 .category-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+.v5 .category-chip.active {
+  background: linear-gradient(135deg, var(--accent), #F97316);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(225,29,72,0.3);
+  transform: scale(1.05);
+}
+
+.v5 .setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+  background: #fafafa;
+  transition: var(--transition);
+}
+body.dark .v5 .setting-row { background: #222; }
+.v5 .setting-row:hover { background: #f0f0f0; }
+body.dark .v5 .setting-row:hover { background: #2a2a2a; }
+.v5 .setting-label { font-size: 15px; font-weight: 600; }
+.v5 .setting-desc { font-size: 12px; opacity: 0.4; margin-top: 2px; }
+
+/* ============================================
+   ACCENT COLOR PALETTE (shared)
+   ============================================ */
+.accent-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.accent-option {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.accent-option:hover { transform: scale(1.15); }
+.accent-option.selected {
+  border-color: #1a1a1a;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #1a1a1a;
+}
+body.dark .accent-option.selected {
+  border-color: white;
+  box-shadow: 0 0 0 2px #111, 0 0 0 4px white;
+}
+
+/* ============================================
+   ANIMATION PREVIEW
+   ============================================ */
+@keyframes pulse-play {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb, 99,102,241), 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(var(--accent-rgb, 99,102,241), 0); }
+}
+
+.play-btn.playing {
+  animation: pulse-play 1.5s infinite;
+}
+
+/* ============================================
+   COMPARISON TABLE
+   ============================================ */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+.compare-table th, .compare-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+body.dark .compare-table th, body.dark .compare-table td { border-color: #333; }
+
+.compare-table th {
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.5;
+}
+
+.compare-table td:first-child { font-weight: 500; }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     TOP BAR
+     ============================================ -->
+<div class="top-bar">
+  <h1>🐾 UI-Kit Showcase</h1>
+  <button class="tab-btn active" onclick="showVariant(1)">1. Notion</button>
+  <button class="tab-btn" onclick="showVariant(2)">2. Soft</button>
+  <button class="tab-btn" onclick="showVariant(3)">3. Untitled</button>
+  <button class="tab-btn" onclick="showVariant(4)">4. Glass</button>
+  <button class="tab-btn" onclick="showVariant(5)">5. Bold</button>
+  <button class="tab-btn" onclick="showVariant(0)">📊 Сравнение</button>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+</div>
+
+<!-- ============================================
+     VARIANT 1: NOTION CLEAN
+     ============================================ -->
+<div class="variant v1 active" id="v1">
+  <div class="variant-header">
+    <h2>1. Notion Clean</h2>
+    <p>Максимально чистый, тонкие границы, минимум теней, аккуратный и профессиональный</p>
+    <div class="tags">
+      <span class="tag">Минимализм</span>
+      <span class="tag">Тонкие границы</span>
+      <span class="tag">radius: 8px</span>
+    </div>
+  </div>
+
+  <div class="elements-grid">
+    <!-- Animal Card -->
+    <div class="element-block full-width">
+      <div class="element-label">Карточка животного</div>
+      <div class="animal-card">
+        <div class="photo">🦁</div>
+        <div class="card-body">
+          <div class="animal-name">Лев</div>
+          <div class="animal-info">Млекопитающее · Саванна</div>
+          <div class="card-actions">
+            <button class="play-btn" onclick="this.classList.toggle('playing')">🔊</button>
+            <span class="counter">3 / 9</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-btn">‹</button>
+        <button class="nav-btn">›</button>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="element-block">
+      <div class="element-label">Категории</div>
+      <div class="category-list">
+        <button class="category-chip">🎲 Все</button>
+        <button class="category-chip active">🦁 Саванна</button>
+        <button class="category-chip">🐄 Ферма</button>
+        <button class="category-chip">🌲 Лес</button>
+        <button class="category-chip">🐱 Питомцы</button>
+        <button class="category-chip">🦉 Птицы</button>
+        <button class="category-chip">🐬 Море</button>
+        <button class="category-chip">🐝 Насекомые</button>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="element-block">
+      <div class="element-label">Настройки</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Автоплей при показе</div>
+          <div class="setting-desc">Звук воспроизводится автоматически</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Задержка автоплея</div>
+          <div class="setting-desc">Пауза перед воспроизведением</div>
+        </div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="3000" value="400" step="100">
+          <span class="slider-val">400 мс</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Громкость</div>
+        </div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="100" value="80">
+          <span class="slider-val">80%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Тёмная тема</div>
+        </div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="element-block">
+      <div class="element-label">Кнопки</div>
+      <div class="buttons-row">
+        <button class="btn-primary">🔊 Слушать</button>
+        <button class="btn-secondary">📥 Скачать для офлайн</button>
+        <button class="btn-ghost">Сбросить</button>
+      </div>
+    </div>
+
+    <!-- Accent Colors -->
+    <div class="element-block full-width">
+      <div class="element-label">Выбор акцентного цвета (в настройках пользователя)</div>
+      <div class="accent-palette">
+        <div class="accent-option selected" style="background:#2383E2" title="Синий"></div>
+        <div class="accent-option" style="background:#E11D48" title="Красный"></div>
+        <div class="accent-option" style="background:#F97316" title="Оранжевый"></div>
+        <div class="accent-option" style="background:#10B981" title="Зелёный"></div>
+        <div class="accent-option" style="background:#7C3AED" title="Фиолетовый"></div>
+        <div class="accent-option" style="background:#EC4899" title="Розовый"></div>
+        <div class="accent-option" style="background:#0EA5E9" title="Голубой"></div>
+        <div class="accent-option" style="background:#EAB308" title="Жёлтый"></div>
+        <div class="accent-option" style="background:#6366F1" title="Индиго"></div>
+        <div class="accent-option" style="background:#14B8A6" title="Teal"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     VARIANT 2: SOFT WARM
+     ============================================ -->
+<div class="variant v2" id="v2">
+  <div class="variant-header">
+    <h2>2. Soft Warm</h2>
+    <p>Мягкий и тёплый. Больше скругления, мягкие тени, уютные формы</p>
+    <div class="tags">
+      <span class="tag">Мягкий</span>
+      <span class="tag">Тени</span>
+      <span class="tag">radius: 16px</span>
+    </div>
+  </div>
+
+  <div class="elements-grid">
+    <div class="element-block full-width">
+      <div class="element-label">Карточка животного</div>
+      <div class="animal-card">
+        <div class="photo">🐄</div>
+        <div class="card-body">
+          <div class="animal-name">Корова</div>
+          <div class="animal-info">Млекопитающее · Ферма</div>
+          <div class="card-actions">
+            <button class="play-btn" onclick="this.classList.toggle('playing')">🔊</button>
+            <span class="counter">2 / 10</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-btn">‹</button>
+        <button class="nav-btn">›</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Категории</div>
+      <div class="category-list">
+        <button class="category-chip">🎲 Все</button>
+        <button class="category-chip">🦁 Саванна</button>
+        <button class="category-chip active">🐄 Ферма</button>
+        <button class="category-chip">🌲 Лес</button>
+        <button class="category-chip">🐱 Питомцы</button>
+        <button class="category-chip">🦉 Птицы</button>
+        <button class="category-chip">🐬 Море</button>
+        <button class="category-chip">🐝 Насекомые</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Настройки</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Автоплей при показе</div>
+          <div class="setting-desc">Звук воспроизводится автоматически</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость</div></div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="100" value="80">
+          <span class="slider-val">80%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Тёмная тема</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Кнопки</div>
+      <div class="buttons-row">
+        <button class="btn-primary">🔊 Слушать</button>
+        <button class="btn-secondary">📥 Скачать для офлайн</button>
+        <button class="btn-ghost">Сбросить</button>
+      </div>
+    </div>
+
+    <div class="element-block full-width">
+      <div class="element-label">Акцентный цвет</div>
+      <div class="accent-palette">
+        <div class="accent-option" style="background:#2383E2"></div>
+        <div class="accent-option" style="background:#E11D48"></div>
+        <div class="accent-option selected" style="background:#F97316"></div>
+        <div class="accent-option" style="background:#10B981"></div>
+        <div class="accent-option" style="background:#7C3AED"></div>
+        <div class="accent-option" style="background:#EC4899"></div>
+        <div class="accent-option" style="background:#0EA5E9"></div>
+        <div class="accent-option" style="background:#EAB308"></div>
+        <div class="accent-option" style="background:#6366F1"></div>
+        <div class="accent-option" style="background:#14B8A6"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     VARIANT 3: UNTITLED UI
+     ============================================ -->
+<div class="variant v3" id="v3">
+  <div class="variant-header">
+    <h2>3. Untitled UI</h2>
+    <p>Строгий, профессиональный. Чёткие линии, контрастные кнопки, чистая структура</p>
+    <div class="tags">
+      <span class="tag">Профессиональный</span>
+      <span class="tag">Чёткие линии</span>
+      <span class="tag">radius: 12px</span>
+    </div>
+  </div>
+
+  <div class="elements-grid">
+    <div class="element-block full-width">
+      <div class="element-label">Карточка животного</div>
+      <div class="animal-card">
+        <div class="photo">🐻</div>
+        <div class="card-body">
+          <div class="animal-name">Медведь</div>
+          <div class="animal-info">Млекопитающее · Лес</div>
+          <div class="card-actions">
+            <button class="play-btn" onclick="this.classList.toggle('playing')">🔊</button>
+            <span class="counter">1 / 10</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-btn">‹</button>
+        <button class="nav-btn">›</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Категории</div>
+      <div class="category-list">
+        <button class="category-chip">🎲 Все</button>
+        <button class="category-chip">🦁 Саванна</button>
+        <button class="category-chip">🐄 Ферма</button>
+        <button class="category-chip active">🌲 Лес</button>
+        <button class="category-chip">🐱 Питомцы</button>
+        <button class="category-chip">🦉 Птицы</button>
+        <button class="category-chip">🐬 Море</button>
+        <button class="category-chip">🐝 Насекомые</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Настройки</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Автоплей при показе</div>
+          <div class="setting-desc">Звук воспроизводится автоматически</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость</div></div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="100" value="80">
+          <span class="slider-val">80%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Тёмная тема</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Кнопки</div>
+      <div class="buttons-row">
+        <button class="btn-primary">🔊 Слушать</button>
+        <button class="btn-secondary">📥 Скачать для офлайн</button>
+        <button class="btn-ghost">Сбросить</button>
+      </div>
+    </div>
+
+    <div class="element-block full-width">
+      <div class="element-label">Акцентный цвет</div>
+      <div class="accent-palette">
+        <div class="accent-option" style="background:#2383E2"></div>
+        <div class="accent-option" style="background:#E11D48"></div>
+        <div class="accent-option" style="background:#F97316"></div>
+        <div class="accent-option" style="background:#10B981"></div>
+        <div class="accent-option selected" style="background:#7C3AED"></div>
+        <div class="accent-option" style="background:#EC4899"></div>
+        <div class="accent-option" style="background:#0EA5E9"></div>
+        <div class="accent-option" style="background:#EAB308"></div>
+        <div class="accent-option" style="background:#6366F1"></div>
+        <div class="accent-option" style="background:#14B8A6"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     VARIANT 4: GLASSMORPHISM
+     ============================================ -->
+<div class="variant v4" id="v4">
+  <div class="variant-header">
+    <h2>4. Glassmorphism</h2>
+    <p>Полупрозрачные карточки, blur-эффекты, современный и лёгкий</p>
+    <div class="tags">
+      <span class="tag">Стекло</span>
+      <span class="tag">Blur</span>
+      <span class="tag">radius: 20px</span>
+    </div>
+  </div>
+
+  <div class="elements-grid">
+    <div class="element-block full-width">
+      <div class="element-label">Карточка животного</div>
+      <div class="animal-card">
+        <div class="photo">🐬</div>
+        <div class="card-body">
+          <div class="animal-name">Дельфин</div>
+          <div class="animal-info">Млекопитающее · Море</div>
+          <div class="card-actions">
+            <button class="play-btn" onclick="this.classList.toggle('playing')">🔊</button>
+            <span class="counter">1 / 6</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-btn">‹</button>
+        <button class="nav-btn">›</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Категории</div>
+      <div class="category-list">
+        <button class="category-chip">🎲 Все</button>
+        <button class="category-chip">🦁 Саванна</button>
+        <button class="category-chip">🐄 Ферма</button>
+        <button class="category-chip">🌲 Лес</button>
+        <button class="category-chip">🐱 Питомцы</button>
+        <button class="category-chip">🦉 Птицы</button>
+        <button class="category-chip active">🐬 Море</button>
+        <button class="category-chip">🐝 Насекомые</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Настройки</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Автоплей при показе</div>
+          <div class="setting-desc">Звук воспроизводится автоматически</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость</div></div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="100" value="80">
+          <span class="slider-val">80%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Тёмная тема</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Кнопки</div>
+      <div class="buttons-row">
+        <button class="btn-primary">🔊 Слушать</button>
+        <button class="btn-secondary">📥 Скачать для офлайн</button>
+        <button class="btn-ghost">Сбросить</button>
+      </div>
+    </div>
+
+    <div class="element-block full-width">
+      <div class="element-label">Акцентный цвет</div>
+      <div class="accent-palette">
+        <div class="accent-option" style="background:#2383E2"></div>
+        <div class="accent-option" style="background:#E11D48"></div>
+        <div class="accent-option" style="background:#F97316"></div>
+        <div class="accent-option selected" style="background:#10B981"></div>
+        <div class="accent-option" style="background:#7C3AED"></div>
+        <div class="accent-option" style="background:#EC4899"></div>
+        <div class="accent-option" style="background:#0EA5E9"></div>
+        <div class="accent-option" style="background:#EAB308"></div>
+        <div class="accent-option" style="background:#6366F1"></div>
+        <div class="accent-option" style="background:#14B8A6"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     VARIANT 5: BOLD & PLAYFUL
+     ============================================ -->
+<div class="variant v5" id="v5">
+  <div class="variant-header">
+    <h2>5. Bold & Playful</h2>
+    <p>Яркий, но не детский. Жирные акценты, крупные элементы, градиенты</p>
+    <div class="tags">
+      <span class="tag">Яркий</span>
+      <span class="tag">Градиенты</span>
+      <span class="tag">radius: 24px</span>
+    </div>
+  </div>
+
+  <div class="elements-grid">
+    <div class="element-block full-width">
+      <div class="element-label">Карточка животного</div>
+      <div class="animal-card">
+        <div class="photo">🐱</div>
+        <div class="card-body">
+          <div class="animal-name">Кошка</div>
+          <div class="animal-info">Млекопитающее · Питомцы</div>
+          <div class="card-actions">
+            <button class="play-btn" onclick="this.classList.toggle('playing')">🔊</button>
+            <span class="counter">1 / 6</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-btn">‹</button>
+        <button class="nav-btn">›</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Категории</div>
+      <div class="category-list">
+        <button class="category-chip">🎲 Все</button>
+        <button class="category-chip">🦁 Саванна</button>
+        <button class="category-chip">🐄 Ферма</button>
+        <button class="category-chip">🌲 Лес</button>
+        <button class="category-chip active">🐱 Питомцы</button>
+        <button class="category-chip">🦉 Птицы</button>
+        <button class="category-chip">🐬 Море</button>
+        <button class="category-chip">🐝 Насекомые</button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Настройки</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Автоплей при показе</div>
+          <div class="setting-desc">Звук воспроизводится автоматически</div>
+        </div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость</div></div>
+        <div class="slider-container">
+          <input type="range" class="slider" min="0" max="100" value="80">
+          <span class="slider-val">80%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Тёмная тема</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="element-block">
+      <div class="element-label">Кнопки</div>
+      <div class="buttons-row">
+        <button class="btn-primary">🔊 Слушать</button>
+        <button class="btn-secondary">📥 Скачать для офлайн</button>
+        <button class="btn-ghost">Сбросить</button>
+      </div>
+    </div>
+
+    <div class="element-block full-width">
+      <div class="element-label">Акцентный цвет</div>
+      <div class="accent-palette">
+        <div class="accent-option" style="background:#2383E2"></div>
+        <div class="accent-option selected" style="background:#E11D48"></div>
+        <div class="accent-option" style="background:#F97316"></div>
+        <div class="accent-option" style="background:#10B981"></div>
+        <div class="accent-option" style="background:#7C3AED"></div>
+        <div class="accent-option" style="background:#EC4899"></div>
+        <div class="accent-option" style="background:#0EA5E9"></div>
+        <div class="accent-option" style="background:#EAB308"></div>
+        <div class="accent-option" style="background:#6366F1"></div>
+        <div class="accent-option" style="background:#14B8A6"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     COMPARISON TABLE
+     ============================================ -->
+<div class="variant" id="v0">
+  <div class="variant-header">
+    <h2>📊 Сравнение вариантов</h2>
+    <p>Выберите стиль, который ближе всего к вашему видению</p>
+  </div>
+
+  <div class="element-block full-width" style="overflow-x:auto">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Параметр</th>
+          <th>1. Notion</th>
+          <th>2. Soft</th>
+          <th>3. Untitled</th>
+          <th>4. Glass</th>
+          <th>5. Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Скругления</td>
+          <td>8px</td>
+          <td>16px</td>
+          <td>12px</td>
+          <td>20px</td>
+          <td>24px</td>
+        </tr>
+        <tr>
+          <td>Тени</td>
+          <td>Нет</td>
+          <td>Мягкие</td>
+          <td>Лёгкие</td>
+          <td>Glow</td>
+          <td>Цветные</td>
+        </tr>
+        <tr>
+          <td>Границы</td>
+          <td>Тонкие 1px</td>
+          <td>Нет</td>
+          <td>1px</td>
+          <td>Прозрачные</td>
+          <td>2px</td>
+        </tr>
+        <tr>
+          <td>Play-кнопка</td>
+          <td>Круг 52px</td>
+          <td>Круг 56px</td>
+          <td>Скруглённая 48px</td>
+          <td>Круг 56px + glow</td>
+          <td>Скругл. 64px + градиент</td>
+        </tr>
+        <tr>
+          <td>Навигация</td>
+          <td>Квадрат</td>
+          <td>Круг</td>
+          <td>Квадрат</td>
+          <td>Круг + glass</td>
+          <td>Большой квадрат</td>
+        </tr>
+        <tr>
+          <td>Категории</td>
+          <td>Чипы с рамкой</td>
+          <td>Пилюли без рамки</td>
+          <td>Чипы с рамкой</td>
+          <td>Пилюли + glass</td>
+          <td>Большие пилюли</td>
+        </tr>
+        <tr>
+          <td>Настройки</td>
+          <td>Строки + border</td>
+          <td>Строки + border</td>
+          <td>Строки + hover</td>
+          <td>Строки + glass</td>
+          <td>Карточки + фон</td>
+        </tr>
+        <tr>
+          <td>Ощущение</td>
+          <td>📋 Рабочий инструмент</td>
+          <td>🧸 Уютный и тёплый</td>
+          <td>💼 Профессиональный</td>
+          <td>🪟 Современный</td>
+          <td>🎨 Выразительный</td>
+        </tr>
+        <tr>
+          <td>Моя рекомендация</td>
+          <td>⭐⭐⭐⭐</td>
+          <td>⭐⭐⭐</td>
+          <td>⭐⭐⭐⭐⭐</td>
+          <td>⭐⭐⭐</td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 24px; padding: 20px; background: #f0f7ff; border-radius: 12px; border-left: 4px solid #2383E2;">
+      <strong>💡 Моя рекомендация:</strong> Вариант <strong>3 (Untitled UI)</strong> — он ближе всего к вашим референсам (Notion + Untitled UI). Строгий, но с яркими акцентами. Профессионально смотрится в портфолио. Или <strong>микс 1+3</strong>: чистота Notion + структурированность Untitled.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+function showVariant(n) {
+  document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  const variant = document.getElementById('v' + n);
+  if (variant) variant.classList.add('active');
+  
+  const buttons = document.querySelectorAll('.tab-btn');
+  const idx = n === 0 ? buttons.length - 1 : n - 1;
+  if (buttons[idx]) buttons[idx].classList.add('active');
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  const btn = document.querySelector('.theme-toggle');
+  btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+}
+
+// Accent color selection
+document.querySelectorAll('.accent-option').forEach(swatch => {
+  swatch.addEventListener('click', function() {
+    const palette = this.closest('.accent-palette');
+    palette.querySelectorAll('.accent-option').forEach(s => s.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+
+// Toggle clicks
+document.querySelectorAll('.toggle').forEach(toggle => {
+  toggle.addEventListener('click', function() {
+    this.classList.toggle('on');
+  });
+});
+
+// Slider value display
+document.querySelectorAll('.slider').forEach(slider => {
+  slider.addEventListener('input', function() {
+    const val = this.parentElement.querySelector('.slider-val');
+    if (val) {
+      if (parseInt(this.max) > 1000) {
+        val.textContent = this.value + ' мс';
+      } else {
+        val.textContent = this.value + '%';
+      }
+    }
+  });
+});
+
+// Keyboard: 1-5 switch variants, D toggle dark
+document.addEventListener('keydown', function(e) {
+  if (e.key >= '1' && e.key <= '5') showVariant(parseInt(e.key));
+  if (e.key === '0') showVariant(0);
+  if (e.key === 'd' || e.key === 'D') toggleTheme();
+});
+</script>
+
+</body>
+</html>

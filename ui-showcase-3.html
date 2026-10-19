@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI Kit — Кто так говорит?</title>
+
+<!-- Manrope: аналог YS Text, бесплатный, с Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS (вдохновлено Яндекс.Браузер для бизнеса)
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Акцент — выбирается пользователем, по умолчанию коралловый */
+  --c-brand:            #FF5739;
+  --c-brand-hover:      #FF6246;
+  --c-brand-active:     #E84A2F;
+  --c-brand-soft:       rgba(255, 87, 57, .08);
+  --c-brand-mid:        rgba(255, 87, 57, .18);
+
+  /* Фон */
+  --c-bg:               #FFFFFF;
+  --c-bg-soft:          #F2F6FA;
+  --c-bg-mute:          #E8EDF3;
+  --c-bg-dark:          #384562;
+  --c-bg-dark-hover:    #2E3A52;
+
+  /* Текст */
+  --c-text:             #3C4760;
+  --c-text-strong:      #1F2740;
+  --c-text-muted:       rgba(60, 71, 96, .70);
+  --c-text-dim:         rgba(60, 71, 96, .45);
+  --c-text-on-dark:     #FFFFFF;
+  --c-text-on-dark-dim: rgba(255, 255, 255, .55);
+
+  /* Границы */
+  --c-border:           rgba(56, 69, 98, .12);
+  --c-border-strong:    rgba(56, 69, 98, .22);
+
+  /* Статусы */
+  --c-success:          #22A06B;
+  --c-danger:           #CF2D2D;
+  --c-warning:          #FFB800;
+
+  /* Тени */
+  --shadow-s:           0 1px 2px rgba(26, 33, 61, .08);
+  --shadow-m:           0 4px 20px rgba(56, 69, 98, .10);
+  --shadow-l:           0 13px 40px rgba(48, 76, 135, .18);
+  --shadow-brand:       0 8px 24px rgba(255, 87, 57, .25);
+  --shadow-popup:       0 0 0 1px rgba(13, 35, 67, .08), 0 10px 30px -5px rgba(13, 35, 67, .25);
+
+  /* Радиусы */
+  --r-xs:               6px;
+  --r-s:                10px;
+  --r-m:                14px;
+  --r-l:                20px;
+  --r-xl:               28px;
+  --r-2xl:              40px;
+  --r-pill:             999px;
+
+  /* Шрифты */
+  --font:               'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Размеры */
+  --fs-xs:              13px;
+  --fs-s:               15px;
+  --fs-m:               17px;
+  --fs-l:               22px;
+  --fs-xl:              28px;
+  --fs-2xl:             42px;
+  --fs-3xl:             64px;
+
+  /* Отступы */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
+
+  /* Движение */
+  --ease:               cubic-bezier(.4, 0, .2, 1);
+  --ease-out:           cubic-bezier(.16, 1, .3, 1);
+  --dur-fast:           .15s;
+  --dur:                .25s;
+  --dur-slow:           .4s;
+}
+
+/* Тёмная тема */
+[data-theme="dark"] {
+  --c-bg:               #141A28;
+  --c-bg-soft:          #1E2638;
+  --c-bg-mute:          #262F44;
+  --c-bg-dark:          #0A0F1C;
+  --c-text:             #D8DEEA;
+  --c-text-strong:      #FFFFFF;
+  --c-text-muted:       rgba(216, 222, 234, .70);
+  --c-text-dim:         rgba(216, 222, 234, .40);
+  --c-border:           rgba(255, 255, 255, .08);
+  --c-border-strong:    rgba(255, 255, 255, .15);
+  --shadow-m:           0 4px 20px rgba(0, 0, 0, .25);
+  --shadow-l:           0 13px 40px rgba(0, 0, 0, .40);
+}
+
+/* Акцентные палитры (переключаются атрибутом data-accent) */
+[data-accent="coral"]  { --c-brand: #FF5739; --c-brand-hover: #FF6246; --c-brand-active: #E84A2F; --c-brand-soft: rgba(255,87,57,.08); --c-brand-mid: rgba(255,87,57,.18); --shadow-brand: 0 8px 24px rgba(255,87,57,.25); }
+[data-accent="blue"]   { --c-brand: #2383E2; --c-brand-hover: #3691EB; --c-brand-active: #1B6EC2; --c-brand-soft: rgba(35,131,226,.08); --c-brand-mid: rgba(35,131,226,.18); --shadow-brand: 0 8px 24px rgba(35,131,226,.25); }
+[data-accent="green"]  { --c-brand: #10B981; --c-brand-hover: #22C993; --c-brand-active: #059669; --c-brand-soft: rgba(16,185,129,.08); --c-brand-mid: rgba(16,185,129,.18); --shadow-brand: 0 8px 24px rgba(16,185,129,.25); }
+[data-accent="purple"] { --c-brand: #7C3AED; --c-brand-hover: #8E52F0; --c-brand-active: #6025C0; --c-brand-soft: rgba(124,58,237,.08); --c-brand-mid: rgba(124,58,237,.18); --shadow-brand: 0 8px 24px rgba(124,58,237,.25); }
+[data-accent="pink"]   { --c-brand: #EC4899; --c-brand-hover: #F15CA6; --c-brand-active: #D1337F; --c-brand-soft: rgba(236,72,153,.08); --c-brand-mid: rgba(236,72,153,.18); --shadow-brand: 0 8px 24px rgba(236,72,153,.25); }
+[data-accent="indigo"] { --c-brand: #6366F1; --c-brand-hover: #7679F3; --c-brand-active: #4F52D1; --c-brand-soft: rgba(99,102,241,.08); --c-brand-mid: rgba(99,102,241,.18); --shadow-brand: 0 8px 24px rgba(99,102,241,.25); }
+
+/* ══════════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-s);
+  line-height: 1.5;
+  color: var(--c-text);
+  background: var(--c-bg-soft);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+img, svg, video { max-width: 100%; display: block; }
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; cursor: pointer; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3, h4, h5, h6, p { margin: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--c-brand);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════════════════════════════ */
+.h1 { font-size: var(--fs-3xl); line-height: 1.05; font-weight: 700; letter-spacing: -.02em; color: var(--c-text-strong); }
+.h2 { font-size: var(--fs-2xl); line-height: 1.1; font-weight: 700; letter-spacing: -.02em; color: var(--c-text-strong); }
+.h3 { font-size: var(--fs-xl); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--c-text-strong); }
+.h4 { font-size: var(--fs-l); line-height: 1.25; font-weight: 600; color: var(--c-text-strong); }
+
+.t-lead { font-size: var(--fs-m); line-height: 1.5; color: var(--c-text-muted); }
+.t-small { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.t-muted { color: var(--c-text-muted); }
+.t-dim { color: var(--c-text-dim); }
+.t-brand { color: var(--c-brand); }
+
+@media (max-width: 767px) {
+  .h1 { font-size: 40px; }
+  .h2 { font-size: 30px; }
+  .h3 { font-size: 22px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+.container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-5); }
+.section { padding: var(--sp-16) 0; }
+.row { display: flex; gap: var(--sp-5); }
+.row--mid { align-items: center; }
+.row--btw { justify-content: space-between; }
+.row--wrap { flex-wrap: wrap; }
+.col { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+/* ══════════════════════════════════════════════════════════════
+   BUTTON
+   ══════════════════════════════════════════════════════════════ */
+.btn {
+  --h: 50px;
+  --p: 0 28px;
+  --fs: 16px;
+  --r: var(--r-m);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  height: var(--h);
+  padding: var(--p);
+  font-size: var(--fs);
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  background: var(--c-brand);
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+.btn:hover { background: var(--c-brand-hover); box-shadow: var(--shadow-brand); }
+.btn:active { background: var(--c-brand-active); transform: scale(.97); box-shadow: none; }
+.btn:disabled { background: var(--c-bg-mute); color: var(--c-text-dim); cursor: not-allowed; box-shadow: none; }
+
+.btn--s { --h: 38px; --p: 0 16px; --fs: 14px; --r: var(--r-s); }
+.btn--l { --h: 60px; --p: 0 32px; --fs: 17px; }
+
+.btn--outline {
+  color: var(--c-text-strong);
+  background: transparent;
+  border-color: var(--c-border-strong);
+}
+.btn--outline:hover { background: var(--c-bg-soft); border-color: var(--c-brand); color: var(--c-brand); box-shadow: none; }
+
+.btn--ghost {
+  color: var(--c-text-strong);
+  background: transparent;
+}
+.btn--ghost:hover { background: var(--c-bg-mute); box-shadow: none; }
+
+.btn--dark { background: var(--c-bg-dark); }
+.btn--dark:hover { background: var(--c-bg-dark-hover); box-shadow: none; }
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-m);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease);
+}
+.btn-icon:hover { background: var(--c-bg-soft); border-color: var(--c-brand); color: var(--c-brand); }
+.btn-icon--round { border-radius: var(--r-pill); }
+.btn-icon--ghost { background: transparent; border-color: transparent; }
+.btn-icon--ghost:hover { background: var(--c-bg-mute); border-color: transparent; color: var(--c-text-strong); }
+
+/* ══════════════════════════════════════════════════════════════
+   CARD
+   ══════════════════════════════════════════════════════════════ */
+.card {
+  padding: var(--sp-8);
+  background: var(--c-bg);
+  border-radius: var(--r-xl);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.card--soft { background: var(--c-bg-soft); }
+.card--hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-m); }
+
+/* ══════════════════════════════════════════════════════════════
+   BADGE / BUBBLE
+   ══════════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border-radius: var(--r-pill);
+}
+.badge--brand { color: var(--c-brand); background: var(--c-brand-soft); }
+.badge--dark { color: #fff; background: var(--c-bg-dark); }
+
+/* Bubble для категорий — вдохновлён Яндексом */
+.bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 14px 24px;
+  font-size: var(--fs-m);
+  font-weight: 600;
+  color: var(--c-text-strong);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dur) var(--ease);
+}
+.bubble:hover { border-color: var(--c-brand); color: var(--c-brand); transform: translateY(-2px); }
+.bubble.is-active {
+  background: var(--c-brand);
+  color: #fff;
+  border-color: var(--c-brand);
+  box-shadow: var(--shadow-brand);
+}
+.bubble__emoji { font-size: 20px; line-height: 1; }
+.bubble__count { font-size: var(--fs-xs); font-weight: 500; opacity: .6; }
+.bubble.is-active .bubble__count { opacity: .9; }
+
+/* Левитация bubble'ов */
+@keyframes levitate {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.bubble--float { animation: levitate 4s ease-in-out infinite; }
+.bubble--float:nth-child(2n) { animation-delay: -1s; }
+.bubble--float:nth-child(3n) { animation-delay: -2s; }
+
+/* ══════════════════════════════════════════════════════════════
+   SWITCH / TOGGLE
+   ══════════════════════════════════════════════════════════════ */
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch__slider {
+  position: absolute; inset: 0;
+  background: var(--c-border-strong);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+.switch__slider::before {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--dur) var(--ease);
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.switch input:checked + .switch__slider { background: var(--c-brand); }
+.switch input:checked + .switch__slider::before { transform: translateX(20px); }
+
+/* ══════════════════════════════════════════════════════════════
+   SLIDER (range)
+   ══════════════════════════════════════════════════════════════ */
+.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: var(--c-bg-mute); border-radius: var(--r-pill); outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--c-brand); cursor: pointer; border: 3px solid #fff; box-shadow: var(--shadow-s); transition: transform var(--dur-fast) var(--ease); }
+.slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--c-brand); cursor: pointer; border: 3px solid #fff; box-shadow: var(--shadow-s); }
+
+/* ══════════════════════════════════════════════════════════════
+   SETTINGS ROW
+   ══════════════════════════════════════════════════════════════ */
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.setting:last-child { border: none; }
+.setting__info { flex: 1; min-width: 0; }
+.setting__title { font-size: var(--fs-s); font-weight: 600; color: var(--c-text-strong); margin-bottom: 2px; }
+.setting__desc { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.setting__control { display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0; min-width: 0; }
+.setting__value { font-size: var(--fs-xs); font-weight: 600; color: var(--c-text-strong); min-width: 50px; text-align: right; }
+
+/* ══════════════════════════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════════════════════════ */
+.navbar {
+  background: var(--c-bg-dark);
+  color: var(--c-text-on-dark);
+  padding: 0 var(--sp-6);
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+}
+.navbar__logo { font-size: var(--fs-m); font-weight: 700; color: #fff; }
+.navbar__logo span { color: var(--c-brand); }
+.navbar__nav { display: flex; gap: var(--sp-5); margin-left: auto; }
+.navbar__link { color: var(--c-text-on-dark-dim); font-weight: 500; transition: color var(--dur-fast) var(--ease); background: transparent; border: 0; cursor: pointer; }
+.navbar__link:hover { color: #fff; }
+.navbar__link.is-active { color: #fff; }
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMAL CARD — главный компонент приложения
+   ══════════════════════════════════════════════════════════════ */
+.animal-stage {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--sp-10);
+  align-items: center;
+  padding: var(--sp-10);
+  background: var(--c-bg);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-l);
+  min-height: 540px;
+}
+
+.animal-photo {
+  position: relative;
+  aspect-ratio: 4/5;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-brand-mid), var(--c-brand-soft));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 220px;
+}
+.animal-photo__badge {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  padding: 8px 14px;
+  background: var(--c-bg);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-text-strong);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-s);
+}
+.animal-photo__counter {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  padding: 8px 14px;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(10px);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.animal-info { display: flex; flex-direction: column; gap: var(--sp-5); }
+.animal-info__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  width: fit-content;
+}
+.animal-info__name {
+  font-size: var(--fs-3xl);
+  line-height: .95;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--c-text-strong);
+}
+.animal-info__desc { font-size: var(--fs-m); color: var(--c-text-muted); line-height: 1.5; max-width: 400px; }
+
+.animal-controls { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-2); }
+
+.play-btn {
+  --size: 72px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--c-brand);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: var(--shadow-brand);
+  transition: all var(--dur) var(--ease);
+  position: relative;
+}
+.play-btn:hover { transform: scale(1.08); background: var(--c-brand-hover); }
+.play-btn:active { transform: scale(.96); }
+.play-btn.is-playing::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--c-brand);
+  opacity: .5;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(.95); opacity: .5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.nav-arrow {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: all var(--dur-fast) var(--ease);
+}
+.nav-arrow:hover { background: var(--c-bg-soft); border-color: var(--c-brand); color: var(--c-brand); }
+
+/* ══════════════════════════════════════════════════════════════
+   DEMO LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+.demo-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--c-bg); border-bottom: 1px solid var(--c-border);
+  padding: var(--sp-3) var(--sp-5);
+  display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap;
+}
+.demo-nav h1 { font-size: var(--fs-m); font-weight: 700; margin-right: auto; }
+
+.demo-section { padding: var(--sp-10) 0; }
+.demo-section + .demo-section { border-top: 1px solid var(--c-border); }
+.demo-title { font-size: var(--fs-xs); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--c-text-muted); margin-bottom: var(--sp-5); }
+.demo-group { display: flex; gap: var(--sp-3); flex-wrap: wrap; align-items: center; margin-bottom: var(--sp-5); }
+
+/* Palette picker */
+.palette { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.palette__dot {
+  width: 36px; height: 36px; border-radius: 50%;
+  cursor: pointer; border: 3px solid transparent;
+  transition: transform var(--dur-fast) var(--ease);
+  position: relative;
+}
+.palette__dot:hover { transform: scale(1.15); }
+.palette__dot.is-active { border-color: var(--c-text-strong); box-shadow: 0 0 0 2px var(--c-bg); }
+
+/* Settings panel demo */
+.settings-panel {
+  max-width: 480px;
+  padding: var(--sp-6);
+  background: var(--c-bg);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-m);
+}
+.settings-panel__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); padding-bottom: var(--sp-4); border-bottom: 1px solid var(--c-border); }
+.settings-panel__title { font-size: var(--fs-l); font-weight: 700; color: var(--c-text-strong); }
+
+@media (max-width: 767px) {
+  .animal-stage { grid-template-columns: 1fr; padding: var(--sp-5); }
+  .animal-info__name { font-size: 44px; }
+  .play-btn { --size: 64px; font-size: 24px; }
+}
+
+</style>
+</head>
+
+<body data-accent="coral">
+
+<!-- ═════════ TOP NAV (демо-переключатели) ═════════ -->
+<nav class="demo-nav">
+  <h1>🐾 UI Kit · Кто так говорит?</h1>
+  <div class="palette" id="palette">
+    <div class="palette__dot is-active" data-accent="coral"  style="background:#FF5739"></div>
+    <div class="palette__dot" data-accent="blue"   style="background:#2383E2"></div>
+    <div class="palette__dot" data-accent="green"  style="background:#10B981"></div>
+    <div class="palette__dot" data-accent="purple" style="background:#7C3AED"></div>
+    <div class="palette__dot" data-accent="pink"   style="background:#EC4899"></div>
+    <div class="palette__dot" data-accent="indigo" style="background:#6366F1"></div>
+  </div>
+  <button class="btn-icon btn-icon--ghost" id="themeBtn" title="Переключить тему">🌙</button>
+</nav>
+
+<div class="container">
+
+  <!-- ═════════ 1. ГЛАВНЫЙ ЭКРАН ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">01 · Главный экран приложения</div>
+
+    <!-- Категории: bubble-таблетки как у Яндекса -->
+    <div class="row row--wrap" style="margin-bottom: var(--sp-6)">
+      <button class="bubble bubble--float"><span class="bubble__emoji">🎲</span>Все<span class="bubble__count">55</span></button>
+      <button class="bubble bubble--float is-active"><span class="bubble__emoji">🦁</span>Саванна<span class="bubble__count">9</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐄</span>Ферма<span class="bubble__count">10</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🌲</span>Лес<span class="bubble__count">10</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐱</span>Питомцы<span class="bubble__count">6</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🦉</span>Птицы<span class="bubble__count">8</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐬</span>Море<span class="bubble__count">6</span></button>
+      <button class="bubble bubble--float"><span class="bubble__emoji">🐝</span>Насекомые<span class="bubble__count">6</span></button>
+    </div>
+
+    <!-- Главная карточка животного -->
+    <div class="animal-stage">
+      <div class="animal-photo">
+        🦁
+        <div class="animal-photo__badge">🦁 Саванна</div>
+        <div class="animal-photo__counter">03 / 09</div>
+      </div>
+      <div class="animal-info">
+        <div class="animal-info__tag">Млекопитающее</div>
+        <h2 class="animal-info__name">Лев</h2>
+        <p class="animal-info__desc">Крупный хищник семейства кошачьих, обитающий в саваннах Африки. Его рык слышен за восемь километров.</p>
+        <div class="animal-controls">
+          <button class="play-btn" onclick="this.classList.toggle('is-playing')">▶</button>
+          <button class="nav-arrow">‹</button>
+          <button class="nav-arrow">›</button>
+          <button class="btn-icon btn-icon--ghost" title="Повторить">↻</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 2. КНОПКИ ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">02 · Кнопки</div>
+
+    <div class="demo-group">
+      <button class="btn">Основная</button>
+      <button class="btn btn--outline">С рамкой</button>
+      <button class="btn btn--ghost">Призрачная</button>
+      <button class="btn btn--dark">Тёмная</button>
+      <button class="btn" disabled>Неактивная</button>
+    </div>
+
+    <div class="demo-group">
+      <button class="btn btn--s">Маленькая</button>
+      <button class="btn">Средняя</button>
+      <button class="btn btn--l">🔊 Слушать звук</button>
+    </div>
+
+    <div class="demo-group">
+      <button class="btn-icon">⚙</button>
+      <button class="btn-icon btn-icon--round">↻</button>
+      <button class="btn-icon btn-icon--ghost">✕</button>
+      <button class="btn-icon btn-icon--round" style="width:64px;height:64px;background:var(--c-brand);color:#fff;border-color:var(--c-brand);font-size:24px">🔊</button>
+    </div>
+  </section>
+
+  <!-- ═════════ 3. НАСТРОЙКИ ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">03 · Панель настроек</div>
+
+    <div class="settings-panel">
+      <div class="settings-panel__header">
+        <div class="settings-panel__title">Настройки</div>
+        <button class="btn-icon btn-icon--ghost">✕</button>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Автоплей</div>
+          <div class="setting__desc">Звук воспроизводится при показе карточки</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Задержка автоплея</div>
+          <div class="setting__desc">Пауза перед воспроизведением</div>
+        </div>
+        <div class="setting__control" style="min-width:180px">
+          <input type="range" class="slider" min="0" max="3000" value="400" step="100" oninput="this.nextElementSibling.textContent = this.value + ' мс'">
+          <span class="setting__value">400 мс</span>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Громкость</div>
+          <div class="setting__desc">Уровень звука</div>
+        </div>
+        <div class="setting__control" style="min-width:180px">
+          <input type="range" class="slider" min="0" max="100" value="80" oninput="this.nextElementSibling.textContent = this.value + '%'">
+          <span class="setting__value">80%</span>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Циклическая навигация</div>
+          <div class="setting__desc">После последнего — первое</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox">
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Автопереход</div>
+          <div class="setting__desc">Слайд-шоу раз в N секунд</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox">
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting__info">
+          <div class="setting__title">Показывать животных без звука</div>
+          <div class="setting__desc">Бабочка, улитка, крот и др.</div>
+        </div>
+        <div class="setting__control">
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:var(--sp-5); display:flex; gap:var(--sp-2)">
+        <button class="btn btn--s btn--outline">📥 Скачать для офлайна</button>
+        <button class="btn btn--s btn--ghost">Сбросить</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 4. BADGES ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">04 · Бейджи и метки</div>
+
+    <div class="demo-group">
+      <span class="badge">Млекопитающее</span>
+      <span class="badge badge--brand">Новое</span>
+      <span class="badge badge--dark">Офлайн</span>
+      <span class="badge">🔇 Без звука</span>
+    </div>
+  </section>
+
+  <!-- ═════════ 5. ТИПОГРАФИКА ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">05 · Типографика</div>
+
+    <div class="col">
+      <h1 class="h1">Кто так говорит?</h1>
+      <h2 class="h2">Знакомимся с животными</h2>
+      <h3 class="h3">Африканский лев</h3>
+      <h4 class="h4">Млекопитающее саванны</h4>
+      <p class="t-lead">Крупный хищник семейства кошачьих. Его рык слышен за восемь километров.</p>
+      <p class="t-small t-muted">Фото: Wikimedia Commons · CC0</p>
+    </div>
+  </section>
+
+  <!-- ═════════ 6. ЦВЕТОВАЯ СИСТЕМА ═════════ -->
+  <section class="demo-section">
+    <div class="demo-title">06 · Акцент (пользователь выбирает в настройках)</div>
+    <p class="t-lead mb-4">Кликните на цвет вверху страницы — весь интерфейс мгновенно перекрасится.</p>
+
+    <div class="row row--wrap">
+      <div style="padding:var(--sp-4) var(--sp-6);background:var(--c-brand);color:#fff;border-radius:var(--r-m);font-weight:600">brand</div>
+      <div style="padding:var(--sp-4) var(--sp-6);background:var(--c-brand-hover);color:#fff;border-radius:var(--r-m);font-weight:600">hover</div>
+      <div style="padding:var(--sp-4) var(--sp-6);background:var(--c-brand-active);color:#fff;border-radius:var(--r-m);font-weight:600">active</div>
+      <div style="padding:var(--sp-4) var(--sp-6);background:var(--c-brand-soft);color:var(--c-brand);border-radius:var(--r-m);font-weight:600">soft</div>
+      <div style="padding:var(--sp-4) var(--sp-6);background:var(--c-brand-mid);color:var(--c-brand);border-radius:var(--r-m);font-weight:600">mid</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Переключатель акцента
+document.getElementById('palette').addEventListener('click', e => {
+  const dot = e.target.closest('.palette__dot');
+  if (!dot) return;
+  document.body.dataset.accent = dot.dataset.accent;
+  document.querySelectorAll('.palette__dot').forEach(d => d.classList.toggle('is-active', d === dot));
+});
+
+// Переключатель темы
+document.getElementById('themeBtn').addEventListener('click', e => {
+  const current = document.documentElement.dataset.theme;
+  if (current === 'dark') {
+    document.documentElement.removeAttribute('data-theme');
+    e.currentTarget.textContent = '🌙';
+  } else {
+    document.documentElement.dataset.theme = 'dark';
+    e.currentTarget.textContent = '☀️';
+  }
+});
+</script>
+
+</body>
+</html>
