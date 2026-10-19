@@ -38,8 +38,6 @@ export default function HomePage() {
   const {
     toggleCheatsheet, closeCheatsheet,
     toggleSettings, closeSettings,
-    shuffleActive, toggleShuffle,
-    autoplayActive, toggleAutoplay,
   } = useOutletContext<OutletCtx>()
   const settings = useSettings()
   const stageRef = useRef<AnimalStageHandle>(null)
