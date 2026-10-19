@@ -13,7 +13,6 @@ const animals: Animal[] = animalsData
 const categories = categoriesData as { id: string; name: string; emoji: string }[]
 const allCategoryIds = ['all', ...categories.map(c => c.id)]
 
-/* Утилита: перемешать массив (Fisher-Yates) */
 function shuffleArray<T>(arr: T[]): T[] {
   const result = [...arr]
   for (let i = result.length - 1; i > 0; i--) {
@@ -41,6 +40,7 @@ export default function HomePage() {
     shuffleActive, toggleShuffle,
     autoplayActive, toggleAutoplay,
   } = useOutletContext<OutletCtx>()
+
   const settings = useSettings()
   const stageRef = useRef<AnimalStageHandle>(null)
   const isPlayingRef = useRef(false)
@@ -51,137 +51,103 @@ export default function HomePage() {
 
   /* Фильтрация по категории */
   const baseFiltered = useMemo(() => {
-    return activeCategory === 'all'
-      ? animals
-      : animals.filter(a => a.categories.includes(activeCategory))
+    if (activeCategory === 'all') return animals
+    return animals.filter(a => a.category === activeCategory)
   }, [activeCategory])
 
-  /* Если включён shuffle — перемешиваем */
+  /* Перемешивание */
   const filtered = useMemo(() => {
     if (!shuffleActive) return baseFiltered
     return shuffleArray(baseFiltered)
-    // shuffleSeed используется чтобы пересчитать при нажатии «Случайно» ещё раз
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [baseFiltered, shuffleActive, toggleShuffle, shuffleSeed])
 
-  const safeIndex = filtered.length > 0 ? currentIndex % filtered.length : 0
-  const animal = filtered[safeIndex] || animals[0]
+  const animal = filtered[currentIndex] ?? filtered[0] ?? animals[0]
 
-  /* При изменении shuffle или категории — на первую */
+  /* Сброс индекса при смене категории или shuffle */
   useEffect(() => {
     setCurrentIndex(0)
-  }, [shuffleActive, toggleShuffle, shuffleSeed, activeCategory])
+  }, [activeCategory, shuffleActive, toggleShuffle, shuffleSeed])
 
-  /* Навигация с блокировкой во время звука */
+  /* Навигация */
   const goNext = useCallback(() => {
-    if (isPlayingRef.current) return
     setCurrentIndex(i => {
-      const next = i + 1
-      if (next >= filtered.length) return settings.loopNavigation ? 0 : i
-      return next
+      if (i >= filtered.length - 1) {
+        return settings.loopNavigation ? 0 : i
+      }
+      return i + 1
     })
   }, [filtered.length, settings.loopNavigation])
 
   const goPrev = useCallback(() => {
-    if (isPlayingRef.current) return
     setCurrentIndex(i => {
-      const prev = i - 1
-      if (prev < 0) return settings.loopNavigation ? filtered.length - 1 : i
-      return prev
+      if (i <= 0) {
+        return settings.loopNavigation ? filtered.length - 1 : 0
+      }
+      return i - 1
     })
   }, [filtered.length, settings.loopNavigation])
 
-  const goFirst = useCallback(() => {
-    if (isPlayingRef.current) return
-    setCurrentIndex(0)
-  }, [])
-
-  const goLast = useCallback(() => {
-    if (isPlayingRef.current) return
-    setCurrentIndex(filtered.length - 1)
-  }, [filtered.length])
-
-  const handlePlayStateChange = useCallback((playing: boolean) => {
-    isPlayingRef.current = playing
-  }, [])
-
-  const handlePlay = useCallback(() => {
-    stageRef.current?.playSound()
-  }, [])
-
-    /* Автоплей при смене карточки */
+  /* Автоплей — звук */
   useEffect(() => {
     if (!autoplayActive || !settings.autoplay) return
     const timer = setTimeout(() => {
-      stageRef.current?.playSound()
+      if (!isPlayingRef.current && stageRef.current) {
+        isPlayingRef.current = true
+        stageRef.current.play().finally(() => {
+          isPlayingRef.current = false
+        })
+      }
     }, settings.autoplayDelay)
     return () => clearTimeout(timer)
   }, [animal.id, autoplayActive, toggleAutoplay, settings.autoplay, settings.autoplayDelay])
 
-  const handleCategoryChange = useCallback((id: string) => {
-    setActiveCategory(id)
-    setCurrentIndex(0)
-    // При переключении — пересчитываем shuffle
+  /* Смена shuffle seed при переключении */
+  useEffect(() => {
     if (shuffleActive) setShuffleSeed(s => s + 1)
   }, [shuffleActive])
 
-  const handleCategoryByNumber = useCallback((index: number) => {
-    if (index < allCategoryIds.length) handleCategoryChange(allCategoryIds[index])
-  }, [handleCategoryChange])
-
-  const handleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
-    else document.exitFullscreen?.()
-  }, [])
-
-  const handleMute = useCallback(() => {
-    settings.update('volume', settings.volume > 0 ? 0 : 80)
-  }, [settings])
-
-    /* Автопереход — ждёт окончания звука */
+  /* Авто-переход к следующему */
   useEffect(() => {
     if (!settings.autoNext || !autoplayActive) return
-    const timer = setInterval(() => {
-      if (isPlayingRef.current) return
-      setCurrentIndex(i => (i + 1) % filtered.length)
-    }, settings.autoNextInterval * 1000)
+    if (filtered.length <= 1) return
+    const timer = setInterval(goNext, settings.autoNextInterval)
     return () => clearInterval(timer)
-  }, [settings.autoNext, settings.autoNextInterval, filtered.length, autoplayActive])
+  }, [settings.autoNext, settings.autoNextInterval, filtered.length, autoplayActive, goNext])
 
+  /* Клавиатура */
   useKeyboard({
-    onNext: goNext,
-    onPrev: goPrev,
-    onPlay: handlePlay,
-    onMute: handleMute,
-    onSettings: toggleSettings,
-    onFullscreen: handleFullscreen,
-    onFirst: goFirst,
-    onLast: goLast,
-    onCheatsheet: toggleCheatsheet,
-    onEscape: useCallback(() => { closeCheatsheet(); closeSettings() }, [closeCheatsheet, closeSettings]),
-    onCategory: handleCategoryByNumber,
+    onLeft: goPrev,
+    onRight: goNext,
+    onSpace: () => stageRef.current?.play(),
+    onQuestion: toggleCheatsheet,
+    onEscape: closeCheatsheet,
+    onKeyS: toggleSettings,
+    onKeyM: () => settings.update('volume', settings.volume === 0 ? 80 : 0),
   })
 
-  const swipeHandlers = useSwipe({ onSwipeLeft: goNext, onSwipeRight: goPrev })
+  /* Свайпы */
+  useSwipe({ onLeft: goNext, onRight: goPrev })
+
+  if (!animal) return null
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 56px)', display: 'flex', flexDirection: 'column' }} {...swipeHandlers}>
-      <CategoryBar active={activeCategory} onChange={handleCategoryChange} />
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}>
       <AnimalStage
         ref={stageRef}
         animal={animal}
-        index={safeIndex}
-        total={filtered.length}
-        onPrev={goPrev}
         onNext={goNext}
-        muted={settings.volume === 0}
-        volume={settings.volume / 100}
-        transitionType={settings.transitionType}
-        onPlayStateChange={handlePlayStateChange}
-        playAllVariants={settings.playAllVariants}
+        onPrev={goPrev}
+        currentIndex={currentIndex}
+        total={filtered.length}
+      />
+      <CategoryBar
+        categories={categories}
+        activeId={activeCategory}
+        onChange={setActiveCategory}
+        allCategoryIds={allCategoryIds}
+        showSilent={settings.showSilent}
       />
     </div>
   )
 }
-
-
