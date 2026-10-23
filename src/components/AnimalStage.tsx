@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PlayButton, { type PlayButtonHandle } from './PlayButton'
 import type { Animal } from '../data/types'
@@ -57,6 +57,11 @@ const AnimalStage = forwardRef<AnimalStageHandle, Props>(
     const emoji = emojiMap[animal.id] ?? '🐾'
     const [imgLoaded, setImgLoaded] = useState(false)
     const [imgError, setImgError] = useState(false)
+        // Сброс при смене животного
+    useEffect(() => {
+      setImgLoaded(false)
+      setImgError(false)
+    }, [animal.id])
     const playBtnRef = useRef<PlayButtonHandle>(null)
 
     const hasPhoto = !!animal.photo && !imgError
