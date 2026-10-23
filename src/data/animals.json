@@ -187,10 +187,10 @@
     ],
     "description": "Полоски на шерсти тигра уникальны — как отпечатки пальцев у человека.",
     "animalClass": "Млекопитающее",
-    "habitat": "",
-    "photo": "/photos/tigr.webp",
+    "habitat": "Дальний Восток, джунгли, лес",
+    "photo": "/photos/tiger.webp",
     "sounds": [
-      "/sounds/tigr-1.mp3"
+      "/sounds/tiger-1.mp3"
     ],
     "silent": false,
     "credit": "Pixabay, CC0"
@@ -204,7 +204,7 @@
     "description": "Богомол — единственное насекомое, которое может поворачивать голову почти на 360°, чтобы следить за добычей!",
     "animalClass": "Насекомое",
     "habitat": "Луг, Сад",
-    "photo": "/photos/bogomol.webp",
+    "photo": "/photos/mantis.webp",
     "sounds": [],
     "silent": true,
     "credit": "Pixabay, CC0"
@@ -218,7 +218,7 @@
     "description": "У бабочки «павлиний глаз» на крыльях есть яркие «глазки» — они нужны, чтобы отпугивать хищников: когда птица приближается, бабочка резко раскрывает крылья, и пятна имитируют глаза крупного животного — это сбивает врага с толку.",
     "animalClass": "Насекомое",
     "habitat": "Луг, Берега водоёма",
-    "photo": "/photos/babochka.webp",
+    "photo": "/photos/butterfly.webp",
     "sounds": [],
     "silent": true,
     "credit": "Pixabay, CC0"
