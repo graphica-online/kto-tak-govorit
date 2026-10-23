@@ -57,6 +57,10 @@ const AnimalStage = forwardRef<AnimalStageHandle, Props>(
     const emoji = emojiMap[animal.id] ?? '🐾'
     const [imgLoaded, setImgLoaded] = useState(false)
     const [imgError, setImgError] = useState(false)
+        useEffect(() => {
+      setImgLoaded(false)
+      setImgError(false)
+    }, [animal.id])
         // Сброс при смене животного
     useEffect(() => {
       setImgLoaded(false)

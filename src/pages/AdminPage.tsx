@@ -1,17 +1,10 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import animalsData from '../data/animals.json'
 import categoriesData from '../data/categories.json'
 import type { Animal } from '../data/types'
 
-const PASSWORD = 'admin'
+const PASSWORD = 'admin123'
 const categories = categoriesData as { id: string; name: string }[]
-
-interface PhotoDraft {
-  file: File
-  dataUrl: string
-  webpBlob: Blob | null
-  fileName: string
-}
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('admin') === '1')
@@ -19,7 +12,7 @@ export default function AdminPage() {
   const [animals, setAnimals] = useState<Animal[]>(() => [...(animalsData as Animal[])])
   const [editId, setEditId] = useState<string | null>(null)
   const [draft, setDraft] = useState<Partial<Animal>>({})
-  const [photos, setPhotos] = useState<Record<string, PhotoDraft>>({})
+  const [photoPreviews, setPhotoPreviews] = useState<Record<string, string>>({})
   const [copied, setCopied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -37,59 +30,23 @@ export default function AdminPage() {
     )
   }
 
-  const convertToWebP = (file: File, animalId: string): Promise<PhotoDraft> => {
-    return new Promise(resolve => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const img = new Image()
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          const maxW = 1920
-          const scale = img.width > maxW ? maxW / img.width : 1
-          canvas.width = img.width * scale
-          canvas.height = img.height * scale
-          const ctx = canvas.getContext('2d')!
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-          canvas.toBlob(blob => {
-            const fileName = `${animalId}.webp`
-            resolve({
-              file,
-              dataUrl: canvas.toDataURL('image/webp', 0.85),
-              webpBlob: blob,
-              fileName,
-            })
-          }, 'image/webp', 0.85)
-        }
-        img.src = reader.result as string
-      }
-      reader.readAsDataURL(file)
-    })
-  }
+  /* Загрузка фото — имя берётся из файла */
+  const handlePhotoUpload = (animalId: string, file: File) => {
+    const fileName = file.name
+    const photoPath = `/photos/${fileName}`
 
-  const handlePhotoUpload = async (animalId: string, file: File) => {
-    const draft = await convertToWebP(file, animalId)
-    setPhotos(prev => ({ ...prev, [animalId]: draft }))
-    setAnimals(prev => prev.map(a => a.id === animalId ? { ...a, photo: `/photos/${draft.fileName}` } : a))
-    if (editId === animalId) {
-      setDraft(prev => ({ ...prev, photo: `/photos/${draft.fileName}` }))
+    // Превью для отображения в админке
+    const reader = new FileReader()
+    reader.onload = () => {
+      setPhotoPreviews(prev => ({ ...prev, [animalId]: reader.result as string }))
     }
-  }
+    reader.readAsDataURL(file)
 
-  const downloadPhoto = (animalId: string) => {
-    const p = photos[animalId]
-    if (!p?.webpBlob) return
-    const url = URL.createObjectURL(p.webpBlob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = p.fileName
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const downloadAllPhotos = () => {
-    Object.entries(photos).forEach(([id]) => {
-      setTimeout(() => downloadPhoto(id), 200)
-    })
+    // Обновляем путь в JSON
+    setAnimals(prev => prev.map(a => a.id === animalId ? { ...a, photo: photoPath } : a))
+    if (editId === animalId) {
+      setDraft(prev => ({ ...prev, photo: photoPath }))
+    }
   }
 
   const getJsonOutput = () => JSON.stringify(animals, null, 2)
@@ -110,7 +67,7 @@ export default function AdminPage() {
     if (!id) return
     const newAnimal: Animal = {
       id, name: '', categories: [], description: '', animalClass: '',
-      habitat: '', photo: `/photos/${id}.webp`, sounds: [], silent: false, credit: '',
+      habitat: '', photo: '', sounds: [], silent: false, credit: '',
     }
     setAnimals(prev => [...prev, newAnimal])
     setEditId(id)
@@ -148,7 +105,7 @@ export default function AdminPage() {
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px' }}>
       <h1 style={{ color: 'var(--c-text-strong)', marginBottom: 8 }}>Админ-панель</h1>
       <p style={{ color: 'var(--c-text-muted)', fontSize: 13, marginBottom: 20 }}>
-        Добавляй и редактируй животных. Фото конвертируется в WebP автоматически.
+        Редактируй животных, загружай фото. Имя файла берётся из загруженного файла автоматически.
       </p>
 
       {/* Действия */}
@@ -158,9 +115,6 @@ export default function AdminPage() {
         </button>
         <button onClick={copyJson} style={{ padding: '8px 16px', borderRadius: 10, background: 'var(--c-bg)', border: '1px solid var(--c-border)', color: 'var(--c-text-strong)', fontWeight: 600, cursor: 'pointer' }}>
           {copied ? '✓ Скопировано!' : '📋 Скопировать JSON'}
-        </button>
-        <button onClick={downloadAllPhotos} style={{ padding: '8px 16px', borderRadius: 10, background: 'var(--c-bg)', border: '1px solid var(--c-border)', color: 'var(--c-text-strong)', fontWeight: 600, cursor: 'pointer' }}>
-          📷 Скачать все фото
         </button>
       </div>
 
@@ -174,8 +128,8 @@ export default function AdminPage() {
           }}>
             {/* Превью фото */}
             <div style={{ width: 48, height: 48, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: 'var(--c-bg-mute)' }}>
-              {(photos[a.id]?.dataUrl || a.photo) ? (
-                <img src={photos[a.id]?.dataUrl || a.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              {(photoPreviews[a.id] || a.photo) ? (
+                <img src={photoPreviews[a.id] || a.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🐾</div>
@@ -187,18 +141,12 @@ export default function AdminPage() {
               <div style={{ fontWeight: 700, color: 'var(--c-text-strong)', fontSize: 15 }}>{a.name || a.id}</div>
               <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>
                 {a.categories.join(', ')} · {a.silent ? '🔇' : `🔊 ${a.sounds.length}`}
-                {photos[a.id] ? ' · 📷 новое фото' : ''}
+                {a.photo && <span> · 📷 {a.photo.replace('/photos/', '')}</span>}
               </div>
             </div>
 
             {/* Кнопки */}
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              {photos[a.id] && (
-                <button onClick={() => downloadPhoto(a.id)} title="Скачать фото"
-                  style={{ padding: '6px 10px', borderRadius: 8, background: 'var(--c-bg-soft)', border: '1px solid var(--c-border)', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--c-text-strong)' }}>
-                  📷 Скачать
-                </button>
-              )}
               <button onClick={() => startEdit(a)} style={{ padding: '6px 10px', borderRadius: 8, background: 'var(--c-bg-soft)', border: '1px solid var(--c-border)', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--c-text-strong)' }}>
                 ✏️
               </button>
@@ -235,9 +183,9 @@ export default function AdminPage() {
                   onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoUpload(editId, f) }} />
                 <button onClick={() => fileRef.current?.click()}
                   style={{ padding: '8px 14px', borderRadius: 8, background: 'var(--c-brand)', color: '#fff', fontWeight: 600, border: 'none', cursor: 'pointer', fontSize: 13 }}>
-                  {photos[editId] ? '📷 Заменить фото' : '📷 Загрузить фото'}
+                  📷 {draft.photo ? 'Заменить' : 'Загрузить'}
                 </button>
-                {photos[editId] && <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{photos[editId].fileName}</span>}
+                {draft.photo && <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{draft.photo.replace('/photos/', '')}</span>}
               </div>
             </div>
           </div>
