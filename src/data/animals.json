@@ -169,7 +169,7 @@
     "description": "Ночная хищница, ухает в темноте.",
     "animalClass": "Птица",
     "habitat": "Лес",
-    "photo": "/photos/owl.webp",
+    "photo": "/photos/owl-2.webp",
     "sounds": [
       "/sounds/owl-1.mp3",
       "/sounds/owl-2.mp3",
